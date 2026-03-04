@@ -3,53 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportArena — Sports Portal</title>
-    <meta name="description" content="Upcoming sports events, match schedules, and sports news on SportArena.">
+    <title>SportArena — Your Ultimate Sports Portal</title>
+    <meta name="description" content="Get the latest sports events, match schedules, and expert news on SportArena.">
     <link rel="stylesheet" href="css/style.css">
-    
-    
 </head>
 
-<body>
+<body itemscope itemtype="https://schema.org/WebPage">
 
-    <!-- 1. Accessibility: Skip-link for keyboard navigation -->
+    <!-- 1. Accessibility: Skip-link -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- 2. Header with Navigation -->
-    <header class="header" itemscope itemtype="https://schema.org/Organization">
-        <a href="#" class="logo" itemprop="url">
-            <span itemprop="name">SportArena</span>
-        </a>
+    <header class="header" itemprop="header">
+        <div class="header__container">
+            <a href="/" class="header__logo" title="SportArena Home">
+                <img src="images/logo.png" alt="SportArena official logo" class="header__logo-img">
+            </a>
 
-        <nav class="nav-links" aria-label="Main Navigation">
-            <a href="#events">Events</a>
-            <a href="#hotels">Hotels</a>
-            <a href="#news">News</a>
-        </nav>
+            <nav class="nav" aria-label="Main Navigation">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="#events" class="nav__link">Events</a></li>
+                    <li class="nav__item"><a href="#hotels" class="nav__link">Hotels</a></li>
+                    <li class="nav__item"><a href="#news" class="nav__link">News</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <main id="main-content">
-        <!-- 3. Hero Section (Visuals) -->
+    <main id="main-content" itemprop="mainContentOfPage">
+        
+        <!-- 3. Hero Section -->
         <section class="hero" aria-label="Welcome Section">
-            <!-- Ensure you have an image in images/ folder or update src -->
-            <img src="images/image 1.png" alt="Illuminated football stadium at night" loading="eager">
-            <h1>WELCOME TO SPORTARENA</h1>
+            <img src="images/hero-stadium.jpg" alt="Illuminated football stadium at night" class="hero__image" loading="eager">
+            <h1 class="hero__title">WELCOME TO SPORTARENA</h1>
         </section>
 
         <div class="layout-container">
             
             <!-- 4. Main Content: Sports Events -->
-            <section class="main-content" id="events">
-                <h2>Upcoming Matches</h2>
+            <section class="events-list" id="events">
+                <h2 class="events-list__title">Upcoming Matches</h2>
 
-                <!-- Event 1: Schema.org/SportsEvent -->
+                <!-- Event 1: SportsEvent -->
                 <article class="event-card" itemscope itemtype="https://schema.org/SportsEvent">
                     <header class="event-card__header">
-                        <h3 class="event-card__title" itemprop="name">Champions League Final: Real Madrid vs Liverpool</h3>
-                        <time class="event-card__time" itemprop="startDate" datetime="2026-05-28T21:45">May 28, 2026, 21:45</time>
+                        <h3 class="event-card__name" itemprop="name">Champions League Final: Real Madrid vs Liverpool</h3>
+                        <time class="event-card__date" itemprop="startDate" datetime="2026-05-28T21:45">May 28, 2026, 21:45</time>
                     </header>
                     
-                    <div class="event-card__body">
+                    <div class="event-card__content">
                         <p><strong>Location:</strong> 
                             <span itemprop="location" itemscope itemtype="https://schema.org/Place">
                                 <span itemprop="name">Wembley Stadium</span>, 
@@ -58,71 +60,57 @@
                         </p>
                         
                         <div class="event-card__competitors">
-                            <span itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
+                            <div class="event-card__team" itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
                                 <span itemprop="name">Real Madrid</span>
-                            </span>
-                            <span> VS </span>
-                            <span itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
+                            </div>
+                            <span class="event-card__vs"> VS </span>
+                            <div class="event-card__team" itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
                                 <span itemprop="name">Liverpool</span>
-                            </span>
+                            </div>
                         </div>
-                        
-                        <p itemprop="description">The grand final of the premier European tournament. Don't miss the clash of the titans!</p>
+                        <p class="event-card__description" itemprop="description">The grand final of Europe's premier club competition.</p>
                     </div>
                 </article>
 
-                <!-- Event 2: Schema.org/SportsEvent -->
-                <article class="event-card" itemscope itemtype="https://schema.org/SportsEvent">
-                    <header class="event-card__header">
-                        <h3 class="event-card__title" itemprop="name">NBA: LA Lakers vs Boston Celtics</h3>
-                        <time class="event-card__time" itemprop="startDate" datetime="2026-03-12T19:30">March 12, 2026, 19:30</time>
-                    </header>
+                <!-- News Section -->
+                <section class="news" id="news" aria-labelledby="news-heading">
+                    <h2 id="news-heading" class="news__title">Latest Sports News</h2>
                     
-                    <div class="event-card__body">
-                        <p><strong>Location:</strong> <span itemprop="location">Crypto.com Arena, Los Angeles</span></p>
+                    <article class="news-item">
+                        <!-- Heading added here to fix the W3C warning -->
+                        <h3
+                        class="news-item__title" itemprop="headline">Boston Marathon 2025: New World Records Set</h3>
                         
-                        <div class="event-card__competitors">
-                            <span itemprop="competitor">LA Lakers</span> vs 
-                            <span itemprop="competitor">Boston Celtics</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- News Section with Figure/Figcaption -->
-                <section id="news" aria-labelledby="news-heading">
-                    <h2 id="news-heading">Latest Sports News</h2>
-                    <article>
-                        <figure>
-                            <!-- Placeholder image -->
-                            <img src="images/news-placeholder.png" alt="Marathon winners crossing the finish line" style="width: 50%; height: auto; background-color: #ddd;">
-                            <figcaption>Award ceremony for the Boston Marathon 2025 winners.</figcaption>
+                        <figure class="news-item__figure">
+                            <img src="images/news-marathon.jpg" alt="Marathon winners crossing the finish line" class="news-item__image">
+                            <figcaption class="news-item__caption">Award ceremony for the Boston Marathon 2025 winners.</figcaption>
                         </figure>
-                        <p>The annual marathon concluded today with record-breaking participation...</p>
+                        <p class="news-item__text">The annual marathon concluded today with record-breaking results. Kenyan athletes dominated the podium after a grueling race...</p>
                     </article>
                 </section>
             </section>
 
-            <!-- 5. Sidebar (Aside) -->
+            <!-- 5. Sidebar -->
             <aside class="sidebar">
-                <h3>Featured Partners</h3>
+                <h3 class="sidebar__title">Travel & Partners</h3>
                 
-                <!-- Schema.org/Hotel (Relevant context for Variant 15) -->
-                <div class="hotel-widget" itemscope itemtype="https://schema.org/Hotel">
-                    <h4 itemprop="name">Grand Sport Hotel</h4>
-                    <p itemprop="description">Luxury accommodation near the stadium.</p>
-                    <p>Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
-                        <span itemprop="ratingValue">4.8</span>/5
-                    </span></p>
-                    <a itemprop="url" href="#">Book a Room</a>
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Grand Sport Hotel</h4>
+                    <p class="hotel-card__desc" itemprop="description">Luxury accommodation within walking distance of the stadium.</p>
+                    <p class="hotel-card__rating">Rating: 
+                        <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
+                            <span itemprop="ratingValue">4.8</span>/5
+                        </span>
+                    </p>
+                    <a itemprop="url" href="#" class="hotel-card__link">Book a Room</a>
                 </div>
 
-                <h3>Popular Leagues</h3>
-                <nav aria-label="Leagues Navigation">
-                    <ul style="list-style: none; padding: 0;">
-                        <li><a href="#">Premier League</a></li>
-                        <li><a href="#">La Liga</a></li>
-                        <li><a href="#">NBA</a></li>
-                        <li><a href="#">Formula 1</a></li>
+                <h3 class="sidebar__title">Popular Leagues</h3>
+                <nav class="sidebar-nav" aria-label="Leagues selection">
+                    <ul class="sidebar-nav__list">
+                        <li><a href="#" class="sidebar-nav__link">Premier League</a></li>
+                        <li><a href="#" class="sidebar-nav__link">La Liga</a></li>
+                        <li><a href="#" class="sidebar-nav__link">NBA</a></li>
                     </ul>
                 </nav>
             </aside>
@@ -130,12 +118,13 @@
         </div>
     </main>
 
-    <!-- 6. Footer -->
-    <footer class="footer">
-        <p>&copy; 2026 SportArena. All rights reserved.</p>
-        <address>
-            Contact us: <a href="mailto:info@sportarena.com">info@sportarena.com</a>
-        </address>
+    <footer class="footer" itemprop="footer">
+        <div class="footer__container">
+            <p class="footer__copy">&copy; 2026 SportArena. All rights reserved.</p>
+            <address class="footer__address">
+                Contact us: <a href="mailto:info@sportarena.com" class="footer__link" itemprop="email">info@sportarena.com</a>
+            </address>
+        </div>
     </footer>
 
 </body>
