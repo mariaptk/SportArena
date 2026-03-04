@@ -1,14 +1,14 @@
 .header__logo-img {
-    width: 120px; /* Поменяйте цифру на ту, что вам подходит */
+    width: 120px;
     height: auto;
 }
 
 .hero__image {
-    width: 1200px; /* Поменяйте цифру на ту, что вам подходит */
+    width: 1200px; 
     height: auto;
 }
 
 .news-item__image {
-    width: 500px; /* Поменяйте цифру на ту, что вам подходит */
+    width: 500px;
     height: auto;
 }
