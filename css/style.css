@@ -258,11 +258,10 @@ a {
 .news {
     background-image: url('../images/image 1.png');
     background-size: 160%;
-    background-position: left center;
+    background-position: center center;
     background-attachment: fixed;
     padding: 40px 20px;
-    margin: 0 auto 0;
-    max-width: 1200px;
+    margin: 0 -20px 0;
     position: relative;
     border-radius: 24px;
     overflow: hidden;
