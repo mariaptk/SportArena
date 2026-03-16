@@ -1,14 +1,503 @@
+/* GLOBAL STYLES */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    color: #000;
+    background: #000;
+}
+
+h1, h2, h3 {
+    font-family: 'Cinzel', serif;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Color Palette - Sport Arena Theme */
+:root {
+    --primary: #000; /* Black */
+    --secondary: #007BFF; /* Blue */
+    --accent: #FF6B35; /* Orange */
+    --success: #28A745; /* Green */
+    --background: #fff; /* White */
+    --text: #fff; /* White text on dark */
+    --muted: rgba(255, 255, 255, 0.7); /* Muted white */
+}
+
+/* ACCESSIBILITY */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--primary);
+    color: var(--background);
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 70px;
+    background: var(--primary);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.header__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.header__logo {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 24px;
+    color: var(--background);
+    text-decoration: none;
+}
+
 .header__logo-img {
-    width: 120px;
+    width: 80px;
     height: auto;
+}
+
+.nav {
+    display: flex;
+}
+
+.nav__list {
+    display: flex;
+    gap: 19px;
+    list-style: none;
+}
+
+.nav__link {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 24px;
+    color: var(--background);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.nav__link:hover {
+    color: var(--accent);
+}
+
+/* HERO */
+.hero {
+    position: relative;
+    height: 719px;
+    margin-top: 65px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
 }
 
 .hero__image {
-    width: 1200px; 
-    height: auto;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.hero__title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif;
+    font-size: 90px;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    color: var(--background);
+    text-shadow: 2px 2px 4px var(--primary);
+    z-index: 2;
+    text-align: center;
+    max-width: 90%;
+}
+
+/* MAIN LAYOUT */
+.layout-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.events-list {
+    flex: 1;
+}
+
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+/* EVENTS */
+.events-list__title {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: var(--success);
+}
+
+.event-card {
+    border: 1px solid var(--secondary);
+    padding: 20px;
+    margin-bottom: 20px;
+    background: var(--primary);
+    background-image: url('../images/image 1.png');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.event-card:hover {
+    transform: scale(1.02);
+}
+
+.event-card__header {
+    margin-bottom: 10px;
+}
+
+.event-card__name {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: var(--background);
+}
+
+.event-card__date {
+    font-size: 16px;
+    color: var(--muted);
+}
+
+.event-card__content p {
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.event-card__competitors {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.event-card__team {
+    font-weight: bold;
+    color: var(--text);
+}
+
+.event-card__vs {
+    margin: 0 10px;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.event-card__description {
+    color: var(--muted);
+}
+
+/* NEWS */
+.news__title {
+    font-size: 30px;
+    margin-bottom: 20px;
+    color: var(--success);
+}
+
+.news-item {
+    border: 1px solid var(--secondary);
+    padding: 20px;
+    margin-bottom: 20px;
+    background: var(--primary);
+    background-image: url('../images/image 1.png');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.news-item:hover {
+    transform: scale(1.02);
+}
+
+.news-item__title {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: var(--background);
+}
+
+.news-item__figure {
+    margin-bottom: 10px;
 }
 
 .news-item__image {
-    width: 500px;
+    width: 100%;
+    max-width: 600px;
     height: auto;
+    border-radius: 8px;
+}
+
+.news-item__caption {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.news-item__text {
+    color: var(--muted);
+}
+
+/* SIDEBAR */
+.sidebar__title {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: var(--success);
+}
+
+.hotel-card {
+    border: 1px solid var(--secondary);
+    padding: 15px;
+    margin-bottom: 20px;
+    background: var(--primary);
+    background-image: url('../images/image 1.png');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.hotel-card:hover {
+    transform: scale(1.02);
+}
+
+.hotel-card__name {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: var(--background);
+}
+
+.hotel-card__desc {
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.hotel-card__image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.hotel-card__rating {
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.hotel-card__link {
+    color: var(--accent);
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.hotel-card__link:hover {
+    color: var(--background);
+}
+
+.sidebar-nav__list {
+    list-style: none;
+}
+
+.sidebar-nav__link {
+    display: block;
+    padding: 5px 0;
+    color: var(--text);
+    transition: color 0.3s;
+}
+
+.sidebar-nav__link:hover {
+    color: var(--accent);
+}
+
+/* FOOTER */
+.footer {
+    background: var(--primary);
+    color: var(--background);
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+}
+
+.footer__container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer__copy {
+    margin-bottom: 10px;
+}
+
+.footer__address {
+    font-style: normal;
+}
+
+.footer__link {
+    color: var(--accent);
+    transition: color 0.3s;
+}
+
+.footer__link:hover {
+    color: var(--background);
+}
+
+/* RESPONSIVE */
+@media (max-width: 425px) {
+    /* MOBILE */
+    .header {
+        padding: 15px 20px;
+        height: auto;
+    }
+
+    .header__logo-img {
+        width: 60px;
+    }
+
+    .nav__list {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav__link {
+        font-size: 18px;
+    }
+
+    .hero {
+        height: 400px;
+        margin-top: 60px;
+    }
+
+    .hero__title {
+        font-size: 50px;
+    }
+
+    .layout-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .events-list__title {
+        font-size: 28px;
+    }
+
+    .event-card {
+        padding: 15px;
+    }
+
+    .news__title {
+        font-size: 24px;
+    }
+
+    .news-item {
+        padding: 15px;
+    }
+
+    .news-item__image {
+        max-width: 100%;
+    }
+
+    .hotel-card__image {
+        max-width: 150px;
+    }
+}
+
+@media (min-width: 425px) and (max-width: 1024px) {
+    /* TABLET */
+    .header {
+        padding: 20px 40px;
+    }
+
+    .hero__title {
+        font-size: 70px;
+    }
+
+    .layout-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: flex;
+        gap: 20px;
+    }
+
+    .sidebar > * {
+        flex: 1;
+    }
+
+    .news-item__image {
+        max-width: 500px;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* DESKTOP */
+    .layout-container {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 300px;
+    }
+
+    .news-item__image {
+        max-width: 600px;
+    }
 }
