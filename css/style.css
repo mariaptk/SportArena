@@ -24,12 +24,16 @@ a {
 /* Color Palette - Sport Arena Theme */
 :root {
     --primary: #000; /* Black */
-    --secondary: #007BFF; /* Blue */
-    --accent: #FF6B35; /* Orange */
-    --success: #28A745; /* Green */
+    --secondary: #1e3a8a; /* Dark Blue */
+    --accent: #dc2626; /* Red */
+    --success: #059669; /* Green */
+    --warning: #d97706; /* Orange */
     --background: #fff; /* White */
     --text: #fff; /* White text on dark */
     --muted: rgba(255, 255, 255, 0.7); /* Muted white */
+    --gradient: linear-gradient(45deg, #007BFF, #FF6B35); /* Blue to Orange */
+    --card-bg: #111827; /* Dark Gray */
+    --border: #374151; /* Gray Border */
 }
 
 /* ACCESSIBILITY */
@@ -79,8 +83,9 @@ a {
 }
 
 .header__logo-img {
-    width: 80px;
+    width: 60px;
     height: auto;
+    margin-left: 20px;
 }
 
 .nav {
@@ -174,7 +179,7 @@ a {
 }
 
 .event-card {
-    border: 1px solid var(--secondary);
+    border: 1px solid var(--border);
     padding: 20px;
     margin-bottom: 20px;
     background: var(--primary);
@@ -186,6 +191,7 @@ a {
     color: var(--text);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     transition: transform 0.3s;
+    border-radius: 16px;
 }
 
 .event-card:hover {
@@ -225,13 +231,21 @@ a {
 
 .event-card__vs {
     margin: 0 10px;
-    color: var(--accent);
+    color: var(--background);
     font-weight: bold;
     font-size: 18px;
 }
 
 .event-card__description {
     color: var(--muted);
+}
+
+.event-card__image {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 15px;
 }
 
 /* NEWS */
@@ -242,18 +256,18 @@ a {
 }
 
 .news-item {
-    border: 1px solid var(--secondary);
-    padding: 20px;
+    border: 1px solid var(--border);
+    padding: 25px;
     margin-bottom: 20px;
-    background: var(--primary);
-    background-image: url('../images/image 1.png');
-    background-size: cover;
-    background-position: center;
-    background-blend-mode: overlay;
-    background-color: rgba(0, 0, 0, 0.8);
+    background: var(--card-bg);
     color: var(--text);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     transition: transform 0.3s;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    border-radius: 16px;
+    min-height: 180px;
 }
 
 .news-item:hover {
@@ -264,15 +278,23 @@ a {
     font-size: 22px;
     margin-bottom: 10px;
     color: var(--background);
+    order: 1;
+    width: 100%;
+    flex-basis: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .news-item__figure {
     margin-bottom: 10px;
+    margin-left: 15px;
+    flex-shrink: 0;
+    order: 3;
 }
 
 .news-item__image {
-    width: 100%;
-    max-width: 600px;
+    width: 150px;
     height: auto;
     border-radius: 8px;
 }
@@ -285,6 +307,14 @@ a {
 
 .news-item__text {
     color: var(--muted);
+    order: 2;
+    flex: 1;
+    padding-right: 15px;
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* SIDEBAR */
@@ -306,8 +336,7 @@ a {
     background-color: rgba(0, 0, 0, 0.8);
     color: var(--text);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    transition: transform 0.3s;
-}
+    transition: transform 0.3s;    border-radius: 16px;}
 
 .hotel-card:hover {
     transform: scale(1.02);
@@ -385,12 +414,12 @@ a {
 }
 
 .footer__link {
-    color: var(--accent);
+    color: var(--background);
     transition: color 0.3s;
 }
 
 .footer__link:hover {
-    color: var(--background);
+    color: var(--accent);
 }
 
 /* RESPONSIVE */
