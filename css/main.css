@@ -67,7 +67,7 @@
 .events-list__title {
     font-size: 36px;
     margin-bottom: 20px;
-    color: var(--success);
+    color: var(--text);
 }
 
 .event-card {
@@ -75,7 +75,7 @@
     padding: 20px;
     margin-bottom: 20px;
     background: var(--primary);
-    background-image: url('../images/image 1.png');
+    background-image: url('../images/austris.jpg');
     background-size: cover;
     background-position: center;
     background-blend-mode: overlay;
@@ -144,11 +144,11 @@
 .news__title {
     font-size: 30px;
     margin-bottom: 20px;
-    color: var(--success);
+    color: var(--text);
 }
 
 .news {
-    background-image: url('../images/image 1.png');
+    background-image: url('../images/backroundddd.avif');
     background-size: 160%;
     background-position: center center;
     background-attachment: fixed;
@@ -243,7 +243,7 @@
 .sidebar__title {
     font-size: 24px;
     margin-bottom: 15px;
-    color: var(--success);
+    color: var(--text);
 }
 
 .hotel-card {
@@ -251,7 +251,7 @@
     padding: 15px;
     margin-bottom: 20px;
     background: var(--primary);
-    background-image: url('../images/image 1.png');
+    background-image: url('../images/steven.jpg');
     background-size: cover;
     background-position: center;
     background-blend-mode: overlay;
