@@ -1,0 +1,17 @@
+/* CSS Variables (Theme) */
+:root {
+    --primary: #000; /* Black */
+    --secondary: #1e3a8a; /* Dark Blue */
+    --accent: #dc2626; /* Red */
+    --success: #059669; /* Green */
+    --warning: #d97706; /* Orange */
+    --background: #fff; /* White */
+    --text: #fff; /* White text on dark */
+    --muted: rgba(255, 255, 255, 0.7); /* Muted white */
+    --gradient: linear-gradient(45deg, #007BFF, #FF6B35); /* Blue to Orange */
+    --card-bg: #111827; /* Dark Gray */
+    --border: #374151; /* Gray Border */
+
+    --header-height: 65px;
+    --transition: 0.3s ease;
+}

@@ -25,7 +25,13 @@
             </a>
 
             <nav class="nav" aria-label="Main Navigation">
-                <ul class="nav__list">
+                <input id="nav-toggle" class="nav__checkbox" type="checkbox" aria-hidden="true" />
+                <label class="nav__toggle" for="nav-toggle">
+                    <span class="nav__toggle-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Menu</span>
+                </label>
+
+                <ul id="primary-navigation" class="nav__list">
                     <li class="nav__item"><a href="#events" class="nav__link">Events</a></li>
                     <li class="nav__item"><a href="#hotels" class="nav__link">Hotels</a></li>
                     <li class="nav__item"><a href="#news" class="nav__link">News</a></li>
