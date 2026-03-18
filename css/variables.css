@@ -1,12 +1,12 @@
-/* CSS Variables (Theme) */
+
 :root {
-    --primary: #000; /* Black */
-    --secondary: #1e3a8a; /* Dark Blue */
-    --accent: #dc2626; /* Red */
-    --background: #fff; /* White */
-    --text: #fff; /* White text on dark */
-    --muted: rgba(255, 255, 255, 0.7); /* Muted white */
-    --border: #374151; /* Gray Border */
+    --primary: #000; 
+    --secondary: #1e3a8a; 
+    --accent: #dc2626; 
+    --background: #fff; 
+    --text: #fff; 
+    --muted: rgba(255, 255, 255, 0.7); 
+    --border: #374151; 
 
     --header-height: 65px;
     --transition: 0.3s ease;
