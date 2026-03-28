@@ -224,7 +224,8 @@
 
 .news-item__image {
     width: 220px;
-    height: auto;
+    height: 140px; 
+    object-fit: cover; 
     border-radius: 12px;
 }
 
