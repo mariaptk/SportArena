@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportArena — Your Ultimate Sports Portal</title>
+    <title>SportArena - Your Ultimate Sports Portal</title>
     <meta name="description" content="Get the latest sports events, match schedules, and expert news on SportArena.">
     <link rel="icon" type="image/svg+xml" href="images/logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,21 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Source+Code+Pro:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body itemscope itemtype="https://schema.org/WebPage">
-
-    <!-- 1. Accessibility: Skip-link -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <!-- 2. Header with Navigation -->
     <header class="header" itemprop="header">
         <div class="header__container">
-            <a href="/" class="header__logo" title="SportArena Home">
+            <a href="index.html" class="header__logo" title="SportArena Home">
                 <img src="images/logo.svg" alt="SportArena official logo" class="header__logo-img">
             </a>
 
             <nav class="nav" aria-label="Main Navigation">
-                <input id="nav-toggle" class="nav__checkbox" type="checkbox" aria-hidden="true" />
+                <input id="nav-toggle" class="nav__checkbox" type="checkbox" aria-hidden="true">
                 <label class="nav__toggle" for="nav-toggle">
                     <span class="nav__toggle-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Menu</span>
@@ -41,34 +37,29 @@
     </header>
 
     <main id="main-content" itemprop="mainContentOfPage">
-        
-        <!-- 3. Hero Section -->
         <section class="hero" aria-label="Welcome Section">
             <img src="images/image 1.png" alt="Basketball field in summer" class="hero__image" loading="eager">
             <h1 class="hero__title">WELCOME TO SPORTARENA</h1>
         </section>
 
         <div class="layout-container">
-            
-            <!-- 4. Main Content: Sports Events -->
             <section class="events-list" id="events">
                 <h2 class="events-list__title">Upcoming Matches</h2>
 
-                <!-- Event 1: SportsEvent -->
                 <article class="event-card" itemscope itemtype="https://schema.org/SportsEvent">
                     <header class="event-card__header">
                         <h3 class="event-card__name" itemprop="name">Champions League Final: Real Madrid vs Liverpool</h3>
                         <time class="event-card__date" itemprop="startDate" datetime="2026-05-28T21:45">May 28, 2026, 21:45</time>
                     </header>
-                    
+
                     <div class="event-card__content">
-                        <p><strong>Location:</strong> 
+                        <p><strong>Location:</strong>
                             <span itemprop="location" itemscope itemtype="https://schema.org/Place">
-                                <span itemprop="name">Wembley Stadium</span>, 
+                                <span itemprop="name">Wembley Stadium</span>,
                                 <span itemprop="address">London, UK</span>
                             </span>
                         </p>
-                        
+
                         <div class="event-card__competitors">
                             <div class="event-card__team" itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
                                 <span itemprop="name">Real Madrid</span>
@@ -78,26 +69,49 @@
                                 <span itemprop="name">Liverpool</span>
                             </div>
                         </div>
+
                         <p class="event-card__description" itemprop="description">The grand final of Europe's premier club competition.</p>
+
+                        <div class="match-timer" data-timer data-target-date="2026-05-28T21:45:00">
+                            <h4 class="match-timer__title">Match starts in</h4>
+                            <div class="match-timer__items">
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="days">00</span>
+                                    <span class="match-timer__label">Days</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="hours">00</span>
+                                    <span class="match-timer__label">Hours</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="minutes">00</span>
+                                    <span class="match-timer__label">Minutes</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="seconds">00</span>
+                                    <span class="match-timer__label">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <img src="images/champp.png" alt="Champions League Final match scene" class="event-card__image">
                     </div>
                 </article>
 
-                <!-- Event 2: SportsEvent -->
                 <article class="event-card" itemscope itemtype="https://schema.org/SportsEvent">
                     <header class="event-card__header">
                         <h3 class="event-card__name" itemprop="name">NBA Finals: Lakers vs Celtics</h3>
                         <time class="event-card__date" itemprop="startDate" datetime="2026-06-15T20:00">June 15, 2026, 20:00</time>
                     </header>
-                    
+
                     <div class="event-card__content">
-                        <p><strong>Location:</strong> 
+                        <p><strong>Location:</strong>
                             <span itemprop="location" itemscope itemtype="https://schema.org/Place">
-                                <span itemprop="name">TD Garden</span>, 
+                                <span itemprop="name">TD Garden</span>,
                                 <span itemprop="address">Boston, USA</span>
                             </span>
                         </p>
-                        
+
                         <div class="event-card__competitors">
                             <div class="event-card__team" itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
                                 <span itemprop="name">Lakers</span>
@@ -107,26 +121,49 @@
                                 <span itemprop="name">Celtics</span>
                             </div>
                         </div>
+
                         <p class="event-card__description" itemprop="description">The ultimate basketball showdown in the NBA Finals.</p>
+
+                        <div class="match-timer" data-timer data-target-date="2026-06-15T20:00:00">
+                            <h4 class="match-timer__title">Match starts in</h4>
+                            <div class="match-timer__items">
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="days">00</span>
+                                    <span class="match-timer__label">Days</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="hours">00</span>
+                                    <span class="match-timer__label">Hours</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="minutes">00</span>
+                                    <span class="match-timer__label">Minutes</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="seconds">00</span>
+                                    <span class="match-timer__label">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <img src="images/nba.png" alt="NBA Finals basketball game" class="event-card__image">
                     </div>
                 </article>
 
-                <!-- Event 3: SportsEvent -->
                 <article class="event-card" itemscope itemtype="https://schema.org/SportsEvent">
                     <header class="event-card__header">
                         <h3 class="event-card__name" itemprop="name">Wimbledon Final: Djokovic vs Federer</h3>
                         <time class="event-card__date" itemprop="startDate" datetime="2026-07-10T15:00">July 10, 2026, 15:00</time>
                     </header>
-                    
+
                     <div class="event-card__content">
-                        <p><strong>Location:</strong> 
+                        <p><strong>Location:</strong>
                             <span itemprop="location" itemscope itemtype="https://schema.org/Place">
-                                <span itemprop="name">All England Club</span>, 
+                                <span itemprop="name">All England Club</span>,
                                 <span itemprop="address">London, UK</span>
                             </span>
                         </p>
-                        
+
                         <div class="event-card__competitors">
                             <div class="event-card__team" itemprop="competitor" itemscope itemtype="https://schema.org/SportsTeam">
                                 <span itemprop="name">Djokovic</span>
@@ -136,91 +173,209 @@
                                 <span itemprop="name">Federer</span>
                             </div>
                         </div>
+
                         <p class="event-card__description" itemprop="description">The prestigious tennis final at Wimbledon.</p>
+
+                        <div class="match-timer" data-timer data-target-date="2026-07-10T15:00:00">
+                            <h4 class="match-timer__title">Match starts in</h4>
+                            <div class="match-timer__items">
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="days">00</span>
+                                    <span class="match-timer__label">Days</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="hours">00</span>
+                                    <span class="match-timer__label">Hours</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="minutes">00</span>
+                                    <span class="match-timer__label">Minutes</span>
+                                </div>
+                                <div class="match-timer__item">
+                                    <span class="match-timer__value" data-unit="seconds">00</span>
+                                    <span class="match-timer__label">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <img src="images/tennis.png" alt="Wimbledon tennis final" class="event-card__image">
                     </div>
                 </article>
 
-                <!-- News Section -->
                 <section class="news" id="news" aria-labelledby="news-heading">
                     <h2 id="news-heading" class="news__title">Latest Sports News</h2>
-                    
-                    <article class="news-item">
-                        <!-- Heading added here to fix the W3C warning -->
-                        <h3
-                        class="news-item__title" itemprop="headline">Boston Marathon 2025: New World Records Set</h3>
-                        
+
+                    <article class="news-item"
+                             data-title="Boston Marathon 2025: New World Records Set"
+                             data-full-text="The annual marathon concluded with record-breaking results and a dramatic final stretch. The lead group stayed compact for most of the race, but the closing kilometers created a clear separation between the strongest runners and the rest of the field. Coaches later described the performance as disciplined, controlled and technically mature. Organizers also highlighted the atmosphere along the route, where spectators supported athletes through difficult weather shifts and long final sectors. Analysts now expect these results to influence preparation plans for the next major tournaments and to shape the conversation around endurance racing over the coming months."
+                             data-images="images/news-placeholder.png,images/image 1.png,images/champp.png">
+                        <h3 class="news-item__title" itemprop="headline">Boston Marathon 2025: New World Records Set</h3>
                         <figure class="news-item__figure">
                             <img src="images/news-placeholder.png" alt="Marathon winners crossing the finish line" class="news-item__image">
                             <figcaption class="news-item__caption">The 2025 Boston Marathon.</figcaption>
                         </figure>
-                        <p class="news-item__text">The annual marathon concluded today with record-breaking results. Kenyan athletes dominated the podium after a grueling race...</p>
+                        <p class="news-item__text">The annual marathon concluded with record-breaking results and a dramatic final stretch.</p>
                     </article>
 
-                    <!-- Additional News 1 -->
-                    <article class="news-item">
+                    <article class="news-item"
+                             data-title="Transfer News: Messi Joins New Club"
+                             data-full-text="A high-profile move that may reshape next season's title race. Club officials described the transfer as a strategic step rather than a symbolic one, pointing to the need for experience, calm control and leadership in decisive moments. Supporters immediately began discussing tactical options, combinations in the final third and the effect this signing may have on younger players around him. Analysts believe the story is bigger than headlines alone. The real question is whether this move can influence difficult matches over a full season and restore a stronger competitive identity to the squad."
+                             data-images="images/messi.png,images/champp.png,images/nba.png">
                         <h3 class="news-item__title" itemprop="headline">Transfer News: Messi Joins New Club</h3>
-                        
                         <figure class="news-item__figure">
                             <img src="images/messi.png" alt="Messi celebrating a goal" class="news-item__image">
                             <figcaption class="news-item__caption">Messi's new adventure begins.</figcaption>
                         </figure>
-                        <p class="news-item__text">Lionel Messi has signed a new contract with a top European club, marking a new chapter in his illustrious career. Fans are excited for the upcoming season.</p>
+                        <p class="news-item__text">A high-profile move that may reshape next season's title race.</p>
                     </article>
 
-                    <!-- Additional News 2 -->
-                    <article class="news-item">
+                    <article class="news-item"
+                             data-title="Olympic Games 2026 Preview"
+                             data-full-text="Venues, athletes and organizers are entering the final preparation phase. Recent test events gave staff a final opportunity to evaluate transport, logistics and timing systems, while national teams continued to refine recovery and adaptation plans. Reports from organizers suggest that the core infrastructure is close to full readiness. At the same time, international attention is growing because several disciplines are approaching the Games with strong rivalries, new contenders and unusually balanced fields. The overall tone of preparation feels focused and restrained, with most teams concentrating on precision rather than spectacle."
+                             data-images="images/olimp.jfif,images/tennis.png,images/image 1.png">
                         <h3 class="news-item__title" itemprop="headline">Olympic Games 2026 Preview</h3>
-                        
                         <figure class="news-item__figure">
                             <img src="images/olimp.jfif" alt="Olympic stadium preparation" class="news-item__image">
                             <figcaption class="news-item__caption">Preparations for the 2026 Olympics.</figcaption>
                         </figure>
-                        <p class="news-item__text">As the 2026 Winter Olympics approach, athletes from around the world are gearing up for the ultimate test of skill and endurance in various winter sports.</p>
+                        <p class="news-item__text">Venues, athletes and organizers are entering the final preparation phase.</p>
+                    </article>
+
+                    <article class="news-item"
+                             data-title="Champions League 2025-2026 Season Standings"
+                             data-full-text="<h4>Champions League Season Standings</h4><p>The 2025-2026 Champions League season is heating up with fierce competition among Europe's elite clubs. Real Madrid continues their dominant campaign with consistent performances, while Liverpool maintains a strong second position. Bayern Munich and Paris Saint-Germain are battling for crucial spots, and the competition for qualification places remains intensely competitive.</p><table class='league-table' id='champions-league-table' data-sort-enabled='true'><thead><tr><th scope='col' data-sort='team'>Team</th><th scope='col' data-sort='points'>Points</th></tr></thead><tbody><tr><td>Real Madrid</td><td>89</td></tr><tr><td>Liverpool</td><td>84</td></tr><tr><td>Bayern Munich</td><td>82</td></tr><tr><td>Paris Saint-Germain</td><td>80</td></tr><tr><td>Manchester City</td><td>78</td></tr><tr><td>Juventus</td><td>76</td></tr></tbody></table>"
+                             data-images="images/champp.png,images/image 1.png,images/news-placeholder.png">
+                        <h3 class="news-item__title" itemprop="headline">Champions League 2025-2026 Season Standings</h3>
+                        <figure class="news-item__figure">
+                            <img src="images/champp.png" alt="Champions League trophy and stadium" class="news-item__image">
+                            <figcaption class="news-item__caption">Champions League 2025-2026 season in full swing.</figcaption>
+                        </figure>
+                        <p class="news-item__text">The 2025-2026 Champions League season is heating up with fierce competition among Europe's elite clubs.</p>
                     </article>
                 </section>
             </section>
 
-            <!-- 5. Sidebar -->
             <aside class="sidebar" id="hotels">
                 <h3 class="sidebar__title">Travel & Partners</h3>
-                
-                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
-                    <h4 class="hotel-card__name" itemprop="name">Grand Sport Hotel</h4>
-                    <p class="hotel-card__desc" itemprop="description">Luxury accommodation within walking distance of the stadium.</p>
-                    <img src="images/hotel.jfif" alt="Grand Sport Hotel exterior" class="hotel-card__image">
-                    <p class="hotel-card__rating">Rating: 
-                        <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
-                            <span itemprop="ratingValue">4.8</span>/5
-                        </span>
-                    </p>
-                    <a itemprop="url" href="#hotels" class="hotel-card__link">Book a Room</a>
+
+                <div class="hotel-list" data-hotel-list>
+                    <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                        <h4 class="hotel-card__name" itemprop="name">Grand Sport Hotel</h4>
+                        <p class="hotel-card__desc" itemprop="description">Luxury accommodation within walking distance of the stadium.</p>
+                        <img src="images/hotel.jfif" alt="Grand Sport Hotel exterior" class="hotel-card__image">
+                        <p class="hotel-card__rating">Rating:
+                            <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
+                                <span itemprop="ratingValue">4.8</span>/5
+                            </span>
+                        </p>
+                        <button type="button" itemprop="url" class="hotel-card__link hotel-card__button" data-book-hotel="Grand Sport Hotel">Book</button>
+                    </div>
+
+                    <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                        <h4 class="hotel-card__name" itemprop="name">Arena View Hotel</h4>
+                        <p class="hotel-card__desc" itemprop="description">Stunning views of the sports arena with premium amenities.</p>
+                        <img src="images/hotel2.png" alt="Arena View Hotel view" class="hotel-card__image">
+                        <p class="hotel-card__rating">Rating:
+                            <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
+                                <span itemprop="ratingValue">4.5</span>/5
+                            </span>
+                        </p>
+                        <button type="button" itemprop="url" class="hotel-card__link hotel-card__button" data-book-hotel="Arena View Hotel">Book</button>
+                    </div>
                 </div>
 
-                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
-                    <h4 class="hotel-card__name" itemprop="name">Arena View Hotel</h4>
-                    <p class="hotel-card__desc" itemprop="description">Stunning views of the sports arena with premium amenities.</p>
-                    <img src="images/hotel2.png" alt="Arena View Hotel view" class="hotel-card__image">
-                    <p class="hotel-card__rating">Rating: 
-                        <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating">
-                            <span itemprop="ratingValue">4.5</span>/5
-                        </span>
-                    </p>
-                    <a itemprop="url" href="#hotels" class="hotel-card__link">Book a Room</a>
+                <a href="hotels.html" class="sidebar__action-button" id="load-more-hotels">More Hotels</a>
+
+                <h3 class="sidebar__title">League Table</h3>
+                <div class="table-sorter">
+                    <table class="league-table" id="league-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" data-sort="team">Team</th>
+                                <th scope="col" data-sort="points">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Real Madrid</td>
+                                <td>89</td>
+                            </tr>
+                            <tr>
+                                <td>Liverpool</td>
+                                <td>84</td>
+                            </tr>
+                            <tr>
+                                <td>Boston Celtics</td>
+                                <td>92</td>
+                            </tr>
+                            <tr>
+                                <td>Lakers</td>
+                                <td>88</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <h3 class="sidebar__title">Popular Leagues</h3>
-                <nav class="sidebar-nav" aria-label="Leagues selection">
-                    <ul class="sidebar-nav__list">
-                        <li><a href="#" class="sidebar-nav__link">Premier League</a></li>
-                        <li><a href="#" class="sidebar-nav__link">La Liga</a></li>
-                        <li><a href="#" class="sidebar-nav__link">NBA</a></li>
-                    </ul>
-                </nav>
+                <h3 class="sidebar__title">Voting</h3>
+                <section class="voting" id="voting-section">
+                    <form class="voting__form" id="voting-form">
+                        <p class="voting__question">Select the best player of the week:</p>
+
+                        <label class="voting__option">
+                            <input type="radio" name="player" value="Jude Bellingham">
+                            <span>Jude Bellingham</span>
+                        </label>
+
+                        <label class="voting__option">
+                            <input type="radio" name="player" value="LeBron James">
+                            <span>LeBron James</span>
+                        </label>
+
+                        <label class="voting__option">
+                            <input type="radio" name="player" value="Novak Djokovic">
+                            <span>Novak Djokovic</span>
+                        </label>
+
+                        <p class="form-message form-message--error" id="voting-error"></p>
+                        <button type="submit" class="sidebar__action-button">Submit Vote</button>
+                    </form>
+
+                    <p class="voting__result is-hidden" id="voting-result">Your vote is counted.</p>
+                </section>
             </aside>
-
         </div>
     </main>
+
+    <div class="modal is-hidden" id="booking-modal" aria-hidden="true">
+        <div class="modal__overlay" data-close-modal></div>
+        <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+            <button type="button" class="modal__close" data-close-modal aria-label="Close modal window">&times;</button>
+            <h3 class="modal__title" id="booking-modal-title">Hotel Booking</h3>
+            <p class="modal__subtitle" id="booking-hotel-name">Selected Hotel</p>
+            <form class="booking-form" id="booking-form">
+                <input type="hidden" id="booking-hotel-input" name="hotelName">
+
+                <label class="booking-form__label" for="booking-name">Name</label>
+                <input class="booking-form__input" type="text" id="booking-name" name="name" placeholder="Enter name">
+                <p class="form-message form-message--error" id="booking-name-error"></p>
+
+                <label class="booking-form__label" for="booking-email">Email</label>
+                <input class="booking-form__input" type="email" id="booking-email" name="email" placeholder="Enter email">
+                <p class="form-message form-message--error" id="booking-email-error"></p>
+
+                <p class="form-message form-message--success" id="booking-success"></p>
+                <button type="submit" class="sidebar__action-button">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal is-hidden" id="news-modal" aria-hidden="true">
+        <div class="modal__overlay" data-close-modal></div>
+        <div class="modal__content modal__content--news" role="dialog" aria-modal="true" aria-labelledby="news-modal-title">
+            <button type="button" class="modal__close" data-close-modal aria-label="Close modal window">&times;</button>
+            <div id="news-modal-body"></div>
+        </div>
+    </div>
 
     <footer class="footer" itemprop="footer">
         <div class="footer__container">
@@ -231,9 +386,6 @@
         </div>
     </footer>
 
+    <script type="module" src="js/script.js"></script>
 </body>
 </html>
-
-<script src="js/utils/helpers.js"></script>
-<script src="js/componets/modal.js"></script>
-<script src="js/script.js"></script>

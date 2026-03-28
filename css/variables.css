@@ -1,12 +1,14 @@
 
 :root {
-    --primary: #000; 
-    --secondary: #1e3a8a; 
-    --accent: #dc2626; 
-    --background: #fff; 
-    --text: #fff; 
-    --muted: rgba(255, 255, 255, 0.7); 
-    --border: #374151; 
+    --primary: #050816;
+    --secondary: #059669;
+    --accent: #dc2626;
+    --background: #ffffff;
+    --text: #f8fafc;
+    --muted: rgba(248, 250, 252, 0.74);
+    --border: #374151;
+    --panel: rgba(15, 23, 42, 0.92);
+    --panel-soft: rgba(15, 23, 42, 0.72);
 
     --header-height: 65px;
     --transition: 0.3s ease;

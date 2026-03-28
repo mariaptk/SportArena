@@ -195,6 +195,7 @@
     border-radius: 16px;
     min-height: 180px;
     backdrop-filter: blur(10px);
+    cursor: pointer;
 }
 
 .news-item:hover {
@@ -433,5 +434,440 @@
 
     .news-item__image {
         max-width: 600px;
+    }
+}
+
+.match-timer {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.match-timer__title {
+    margin-bottom: 0;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.match-timer__items {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.match-timer__item {
+    padding: 0;
+    text-align: center;
+}
+
+.match-timer__value {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.match-timer__label {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.1;
+}
+
+.match-slider {
+    display: grid;
+    grid-template-columns: 52px 1fr 52px;
+    gap: 12px;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.match-slider__button {
+    width: 52px;
+    height: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform var(--transition), background-color var(--transition);
+}
+
+.match-slider__button:hover {
+    transform: scale(1.03);
+    background: #f3f4f6;
+}
+
+.match-slider__button:active {
+    transform: scale(0.96);
+}
+
+.hotel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hotel-card {
+    margin-bottom: 0;
+}
+
+.hotel-card__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #111111;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sidebar__action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 18px 0 26px;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #111111;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--transition), background-color var(--transition);
+}
+
+.sidebar__action-button:hover {
+    transform: translateY(-2px);
+    background: #f3f4f6;
+}
+
+.table-sorter {
+    overflow: hidden;
+    margin-bottom: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: var(--panel-soft);
+}
+
+.league-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.league-table th,
+.league-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.league-table th {
+    background: rgba(5, 150, 105, 0.18);
+    cursor: pointer;
+    user-select: none;
+}
+
+.league-table th:hover {
+    background: rgba(220, 38, 38, 0.18);
+}
+
+.voting {
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--panel-soft);
+}
+
+.voting__question {
+    margin-bottom: 14px;
+    font-weight: 700;
+    color: var(--background);
+}
+
+.voting__option {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.voting__result {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(5, 150, 105, 0.2);
+    color: var(--background);
+    font-weight: 700;
+}
+
+.form-message {
+    min-height: 20px;
+    margin: 4px 0 8px;
+    font-size: 14px;
+}
+
+.form-message--error {
+    color: #fca5a5;
+}
+
+.form-message--success {
+    color: #86efac;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.74);
+}
+
+.modal__content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 520px);
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background: var(--panel);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+}
+
+.modal__content--news {
+    width: min(100%, 760px);
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+.modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal__title {
+    margin-bottom: 8px;
+    color: var(--background);
+}
+
+.modal__subtitle {
+    margin-bottom: 16px;
+    color: var(--muted);
+}
+
+.booking-form__label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--background);
+}
+
+.booking-form__input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+.booking-form__input:focus {
+    outline: 1px solid var(--secondary);
+}
+
+.news-modal__meta {
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.news-modal__slider {
+    margin-top: 18px;
+}
+
+.news-modal__text {
+    margin-top: 18px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.news-modal__text p {
+    color: var(--text);
+    line-height: 1.75;
+}
+
+.hotels-page {
+    max-width: 1200px;
+    margin: calc(var(--header-height) + 30px) auto 0;
+    padding: 24px;
+}
+
+.hotels-page__hero {
+    margin-bottom: 24px;
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: var(--panel-soft);
+}
+
+.hotels-page__eyebrow {
+    margin-bottom: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+}
+
+.hotels-page__title {
+    font-size: 42px;
+    color: var(--background);
+}
+
+.hotels-page__text {
+    max-width: 720px;
+    margin-top: 14px;
+    color: var(--muted);
+}
+
+.hotels-page__back-button {
+    width: fit-content;
+    margin-bottom: 0;
+    margin-top: 20px;
+}
+
+.hotels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.nav__list--static {
+    position: static;
+    display: flex;
+    gap: 20px;
+}
+
+.news-detail {
+    max-width: 920px;
+    margin: calc(var(--header-height) + 30px) auto 0;
+    padding: 24px;
+}
+
+.news-detail__card {
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: var(--panel-soft);
+}
+
+.news-detail__back {
+    width: fit-content;
+    margin: 0 0 22px;
+}
+
+.news-detail__meta {
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.news-detail__title {
+    font-size: 38px;
+    color: var(--background);
+}
+
+.news-detail__lead {
+    max-width: 700px;
+    margin-top: 14px;
+    color: var(--muted);
+}
+
+.news-detail__slider {
+    margin-top: 24px;
+}
+
+.news-detail__content {
+    max-width: 720px;
+    margin-top: 24px;
+}
+
+.news-detail__content p {
+    margin-bottom: 14px;
+    color: var(--text);
+}
+
+@media (max-width: 767px) {
+    .match-timer {
+        display: block;
+    }
+
+    .match-timer__title {
+        margin-bottom: 6px;
+    }
+
+    .match-slider {
+        grid-template-columns: 44px 1fr 44px;
+    }
+
+    .match-slider__button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .hotels-page {
+        padding: 14px;
+    }
+
+    .hotels-page__title {
+        font-size: 30px;
+    }
+
+    .news-detail {
+        padding: 14px;
+    }
+
+    .news-detail__card {
+        padding: 18px;
+    }
+
+    .news-detail__title {
+        font-size: 28px;
     }
 }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportArena Hotels</title>
+    <meta name="description" content="SportArena hotel catalog for booking near sports arenas.">
+    <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Source+Code+Pro:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body itemscope itemtype="https://schema.org/WebPage">
+    <header class="header" itemprop="header">
+        <div class="header__container">
+            <a href="index.html" class="header__logo" title="SportArena Home">
+                <img src="images/logo.svg" alt="SportArena official logo" class="header__logo-img">
+            </a>
+
+            <nav class="nav" aria-label="Main Navigation">
+                <ul id="primary-navigation" class="nav__list nav__list--static">
+                    <li class="nav__item"><a href="index.html#events" class="nav__link">Events</a></li>
+                    <li class="nav__item"><a href="hotels.html" class="nav__link">Hotels</a></li>
+                    <li class="nav__item"><a href="index.html#news" class="nav__link">News</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="hotels-page" id="main-content">
+        <section class="hotels-page__hero">
+            <p class="hotels-page__eyebrow">SportArena Stay Guide</p>
+            <h1 class="hotels-page__title">Peaceful hotel selection near major matches</h1>
+            <p class="hotels-page__text">Choose a suitable hotel, open the card and book in a few clicks.</p>
+            <a href="index.html" class="sidebar__action-button hotels-page__back-button">Back to main</a>
+        </section>
+
+        <section class="hotels-page__catalog">
+            <div class="hotels-grid hotel-list" data-hotel-list>
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Grand Sport Hotel</h4>
+                    <p class="hotel-card__desc" itemprop="description">Luxury accommodation within walking distance of the stadium.</p>
+                    <img src="images/hotel.jfif" alt="Grand Sport Hotel exterior" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.8</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Grand Sport Hotel">Book</button>
+                </div>
+
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Arena View Hotel</h4>
+                    <p class="hotel-card__desc" itemprop="description">Stunning views of the sports arena with premium amenities.</p>
+                    <img src="images/hotel2.png" alt="Arena View Hotel view" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.5</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Arena View Hotel">Book</button>
+                </div>
+
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Victory Plaza Hotel</h4>
+                    <p class="hotel-card__desc" itemprop="description">Modern rooms, quiet interior and transfer to the arena every hour.</p>
+                    <img src="images/hotel.jfif" alt="Victory Plaza Hotel building" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.7</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Victory Plaza Hotel">Book</button>
+                </div>
+
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Champion's Rest Hotel</h4>
+                    <p class="hotel-card__desc" itemprop="description">Comfortable rooms, understated design and a calm atmosphere after the match.</p>
+                    <img src="images/hotel2.png" alt="Champion's Rest Hotel rooms" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.6</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Champion's Rest Hotel">Book</button>
+                </div>
+
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Central Match Suites</h4>
+                    <p class="hotel-card__desc" itemprop="description">Minimalist suites for guests who prefer silence, order and a short walk to the venue.</p>
+                    <img src="images/hotel.jfif" alt="Central Match Suites exterior" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.9</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Central Match Suites">Book</button>
+                </div>
+
+                <div class="hotel-card" itemscope itemtype="https://schema.org/Hotel">
+                    <h4 class="hotel-card__name" itemprop="name">Quiet Fan Residence</h4>
+                    <p class="hotel-card__desc" itemprop="description">A calm hotel with breakfast, work zones and convenient transport access.</p>
+                    <img src="images/hotel2.png" alt="Quiet Fan Residence lobby" class="hotel-card__image">
+                    <p class="hotel-card__rating">Rating: <span itemprop="starRating" itemscope itemtype="https://schema.org/Rating"><span itemprop="ratingValue">4.4</span>/5</span></p>
+                    <button type="button" class="hotel-card__link hotel-card__button" data-book-hotel="Quiet Fan Residence">Book</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal is-hidden" id="booking-modal" aria-hidden="true">
+        <div class="modal__overlay" data-close-modal></div>
+        <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+            <button type="button" class="modal__close" data-close-modal aria-label="Close modal window">&times;</button>
+            <h3 class="modal__title" id="booking-modal-title">Бронирование отеля</h3>
+            <p class="modal__subtitle" id="booking-hotel-name">Выбранный отель</p>
+            <form class="booking-form" id="booking-form">
+                <input type="hidden" id="booking-hotel-input" name="hotelName">
+
+                <label class="booking-form__label" for="booking-name">Name</label>
+                <input class="booking-form__input" type="text" id="booking-name" name="name" placeholder="Enter name">
+                <p class="form-message form-message--error" id="booking-name-error"></p>
+
+                <label class="booking-form__label" for="booking-email">Email</label>
+                <input class="booking-form__input" type="email" id="booking-email" name="email" placeholder="Enter email">
+                <p class="form-message form-message--error" id="booking-email-error"></p>
+
+                <p class="form-message form-message--success" id="booking-success"></p>
+                <button type="submit" class="sidebar__action-button">Confirm booking</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer" itemprop="footer">
+        <div class="footer__container">
+            <p class="footer__copy">&copy; 2026 SportArena. All rights reserved.</p>
+            <address class="footer__address">
+                Contact us: <a href="mailto:info@sportarena.com" class="footer__link" itemprop="email">info@sportarena.com</a>
+            </address>
+        </div>
+    </footer>
+
+    <script type="module" src="js/script.js"></script>
+</body>
+</html>
