@@ -28,7 +28,7 @@ export class Voting {
             });
 
             this.form.addEventListener("change", () => {
-                // Событие change используем для очистки ошибки после выбора radio-кнопки.
+              
                 clearText(this.errorElement);
             });
 

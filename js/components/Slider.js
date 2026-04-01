@@ -5,8 +5,7 @@ export class Slider {
 
     init() {
         try {
-            // Используем делегирование на документ,
-            // чтобы слайдер работал и у динамически созданных элементов.
+            
             document.addEventListener("click", (event) => {
                 const button = event.target.closest("[data-direction]");
 

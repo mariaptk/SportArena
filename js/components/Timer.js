@@ -13,8 +13,7 @@ export class Timer {
                 return;
             }
 
-            // Сразу обновляем таймер, чтобы пользователь увидел актуальные данные
-            // без ожидания одной секунды.
+            
             this.updateAllTimers();
 
             this.intervalId = setInterval(() => {

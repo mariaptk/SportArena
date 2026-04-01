@@ -50,8 +50,7 @@ export class TableSorter {
                     : secondValue.localeCompare(firstValue);
             });
 
-            // Используем innerHTML по требованиям лабораторной работы:
-            // формируем новый HTML строк таблицы после сортировки.
+            
             tbody.innerHTML = rows.map((row) => row.outerHTML).join("");
 
             this.sortDirection[sortKey] = !isAscending;

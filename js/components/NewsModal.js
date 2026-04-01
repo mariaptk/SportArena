@@ -16,8 +16,7 @@ export class NewsModal {
                 return;
             }
 
-            // Используем делегирование событий:
-            // один обработчик на общий контейнер новостей.
+            
             this.newsContainer.addEventListener("click", (event) => {
                 const newsItem = event.target.closest(".news-item");
 
@@ -47,8 +46,7 @@ export class NewsModal {
             const images = newsItem.dataset.images || "";
             const firstImage = images.split(",")[0]?.trim() || "";
 
-            // Собираем содержимое модального окна через innerHTML,
-            // чтобы быстро обновить большой блок подробной новости.
+            
             this.modalBody.innerHTML = `
                 <p class="news-modal__meta">SportArena News</p>
                 <h3 class="modal__title" id="news-modal-title">${title}</h3>
@@ -62,10 +60,10 @@ export class NewsModal {
                 </div>
             `;
 
-            // Check if there's a table in the modal and initialize sorting
+            
             const table = this.modalBody.querySelector("table");
             if (table) {
-                // Use the table's id if available, otherwise use data-sort-enabled
+                
                 const tableId = table.id || "[data-sort-enabled]";
                 this.tableSorter = new TableSorter(`#${tableId}`);
                 this.tableSorter.init();

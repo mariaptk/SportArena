@@ -93,14 +93,13 @@ export class HotelManager {
             }
 
             this.additionalHotels.forEach((hotel) => {
-                // Создаем карточку через createElement по требованию задания.
+                
                 const hotelCard = document.createElement("div");
                 hotelCard.className = "hotel-card";
                 hotelCard.setAttribute("itemscope", "");
                 hotelCard.setAttribute("itemtype", "https://schema.org/Hotel");
 
-                // Внутреннее наполнение вставляем через innerHTML,
-                // чтобы продемонстрировать еще один способ динамического DOM.
+                
                 hotelCard.innerHTML = `
                     <h4 class="hotel-card__name" itemprop="name">${hotel.name}</h4>
                     <p class="hotel-card__desc" itemprop="description">${hotel.description}</p>
