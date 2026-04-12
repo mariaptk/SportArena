@@ -1,10 +1,4 @@
-/**
- * apiService.js — универсальный fetch-клиент
- * Обрабатывает: таймаут, 401/403/404/429/5xx, offline
- */
 import { API_CONFIG } from './config.js';
-
-// ─── Нормализованные классы ошибок ───────────────────────────────────────────
 
 export class ApiError extends Error {
   constructor(message, status, code) {
@@ -22,74 +16,55 @@ export class NetworkError extends Error {
   }
 }
 
-// ─── Человеко-читаемые сообщения об ошибках ──────────────────────────────────
-
 const HTTP_MESSAGES = {
-  401: 'Неверный API-ключ. Проверьте config.js.',
-  403: 'Доступ запрещён. Возможно, лига недоступна на вашем плане.',
-  404: 'Данные не найдены.',
-  429: 'Превышен лимит запросов. Подождите немного.',
-  500: 'Ошибка сервера API. Попробуйте позже.',
-  502: 'Сервер API временно недоступен.',
-  503: 'Сервис временно недоступен.',
+  401: 'Invalid API key. Check your configuration.',
+  403: 'Access denied. This competition may not be available on your plan.',
+  404: 'Requested data was not found.',
+  429: 'Request limit reached. Please try again in a moment.',
+  500: 'The API server returned an error. Please try again later.',
+  502: 'The API server is temporarily unavailable.',
+  503: 'The service is temporarily unavailable.',
 };
 
-// ─── Основная функция запроса ─────────────────────────────────────────────────
-
-/**
- * @param {string} url
- * @param {Record<string,string>} headers
- * @returns {Promise<any>} parsed JSON
- */
 export async function apiFetch(url, headers = {}) {
-  // Offline-проверка
   if (!navigator.onLine) {
-    throw new NetworkError('Нет подключения к интернету.');
+    throw new NetworkError('No internet connection.');
   }
 
-  // AbortController для таймаута
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    API_CONFIG.REQUEST_TIMEOUT_MS
-  );
+  const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.REQUEST_TIMEOUT_MS);
 
   try {
     console.log(`[API] GET ${url}`);
 
-    const requestHeaders = {
-      Accept: 'application/json',
-      ...headers,
-    };
-
     const response = await fetch(url, {
       method: 'GET',
-      headers: requestHeaders,
+      headers: {
+        Accept: 'application/json',
+        ...headers,
+      },
       signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const message =
-        HTTP_MESSAGES[response.status] ||
-        `HTTP ошибка ${response.status}`;
+      const message = HTTP_MESSAGES[response.status] ?? `HTTP error ${response.status}`;
       throw new ApiError(message, response.status, `HTTP_${response.status}`);
     }
 
     const data = await response.json();
-    console.log(`[API] ✓ Ответ получен (${url.split('?')[0]})`);
+    console.log(`[API] Response received (${url.split('?')[0]})`);
     return data;
-
-  } catch (err) {
+  } catch (error) {
     clearTimeout(timeoutId);
 
-    if (err.name === 'AbortError') {
-      throw new NetworkError('Запрос превысил время ожидания (таймаут).');
+    if (error.name === 'AbortError') {
+      throw new NetworkError('The request timed out.');
     }
-    if (err instanceof ApiError || err instanceof NetworkError) {
-      throw err;
+    if (error instanceof ApiError || error instanceof NetworkError) {
+      throw error;
     }
-    throw new NetworkError(`Сетевая ошибка: ${err.message}`);
+    throw new NetworkError(`Network error: ${error.message}`);
   }
 }

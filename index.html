@@ -48,17 +48,17 @@
                 <h2 class="events-list__title">Upcoming Matches</h2>
 
                 <!-- ИЗМЕНЕНИЕ 1: кнопки переключения лиги (НОВОЕ) -->
-                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                <div class="competition-switcher">
                     <button
-                        class="hotel-card__button"
+                        class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition('PL','SCHEDULED')"
                         style="font-size:13px;padding:8px 14px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
                     <button
-                        class="hotel-card__button"
+                        class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition('CL','SCHEDULED')"
                         style="font-size:13px;padding:8px 14px;">🏆 Champions League</button>
                     <button
-                        class="hotel-card__button"
+                        class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition(null,'FINISHED')"
                         style="font-size:13px;padding:8px 14px;">✅ Results</button>
                 </div>
@@ -392,6 +392,14 @@
         <div class="modal__content modal__content--news" role="dialog" aria-modal="true" aria-labelledby="news-modal-title">
             <button type="button" class="modal__close" data-close-modal aria-label="Close modal window">&times;</button>
             <div id="news-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="modal is-hidden" id="match-modal" aria-hidden="true">
+        <div class="modal__overlay" data-close-modal></div>
+        <div class="modal__content modal__content--match" role="dialog" aria-modal="true" aria-labelledby="match-modal-title">
+            <button type="button" class="modal__close" data-close-modal aria-label="Close match details">&times;</button>
+            <div id="match-modal-body"></div>
         </div>
     </div>
 

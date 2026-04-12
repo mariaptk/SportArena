@@ -1,18 +1,12 @@
-/**
- * script.js — точка входа SportArena
- * Подключает все модули и инициализирует страницу
- */
+import { HotelManager } from './components/HotelManager.js';
+import { MatchModal } from './components/MatchModal.js';
+import { NewsModal } from './components/NewsModal.js';
+import { Slider } from './components/Slider.js';
+import { TableSorter } from './components/TableSorter.js';
+import { Timer } from './components/Timer.js';
+import { Voting } from './components/Voting.js';
 
-// ─── Компоненты (существующие) ────────────────────────────────────────────────
-import { HotelManager }  from './components/HotelManager.js';
-import { NewsModal }     from './components/NewsModal.js';
-import { Slider }        from './components/Slider.js';
-import { TableSorter }   from './components/TableSorter.js';
-import { Timer }         from './components/Timer.js';
-import { Voting }        from './components/Voting.js';
-
-// ─── Новые API-модули ─────────────────────────────────────────────────────────
-import { API_CONFIG }    from './api/config.js';
+import { API_CONFIG } from './api/config.js';
 import { safeGetMatches, getStandings } from './services/matchSyncService.js';
 import {
   showInAppNotification,
@@ -27,56 +21,60 @@ import {
 } from './utils/uiRenderer.js';
 import { clearExpired, clearAllCache, getCacheStats } from './storege/localStorageCache.js';
 
-// ─── Инициализация существующих компонентов ───────────────────────────────────
-
 function initExistingComponents() {
-  // Таймеры обратного отсчёта
-  const timer = new Timer('[data-target-date]');
-  timer.init();
+  new Timer('[data-target-date]').init();
+  new Slider('[data-slider]').init();
 
-  // Слайдер изображений
-  const slider = new Slider('[data-slider]');
-  slider.init();
-
-  // Голосование
-  const voting = new Voting(
+  new Voting(
     '#voting-form',
     '#voting-result',
     '#voting-error',
     'sportarena:vote:player'
-  );
-  voting.init();
+  ).init();
 
-  // Модальное окно новостей
-  const newsModal = new NewsModal({
+  new NewsModal({
     newsContainerSelector: '.news',
-    modalSelector:         '#news-modal',
-    modalBodySelector:     '#news-modal-body',
-  });
-  newsModal.init();
+    modalSelector: '#news-modal',
+    modalBodySelector: '#news-modal-body',
+  }).init();
 
-  // Сортировщик таблицы (статической, если API не загрузил)
-  const tableSorter = new TableSorter('#league-table');
-  tableSorter.init();
+  new MatchModal({
+    matchesContainerSelector: '[data-matches-list]',
+    modalSelector: '#match-modal',
+    modalBodySelector: '#match-modal-body',
+  }).init();
 
-  // Менеджер отелей (на hotels.html)
-  const hotelManager = new HotelManager({
-    hotelListSelector:     '[data-hotel-list]',
+  new TableSorter('#league-table').init();
+
+  new HotelManager({
+    hotelListSelector: '[data-hotel-list]',
     loadMoreButtonSelector: '[data-load-more-hotels]',
-    modalSelector:         '#booking-modal',
-    formSelector:          '#booking-form',
-    hotelNameSelector:     '#booking-hotel-name',
-    hotelInputSelector:    '#booking-hotel-input',
-    nameInputSelector:     '#booking-name',
-    emailInputSelector:    '#booking-email',
-    nameErrorSelector:     '#booking-name-error',
-    emailErrorSelector:    '#booking-email-error',
-    successSelector:       '#booking-success',
-  });
-  hotelManager.init();
+    modalSelector: '#booking-modal',
+    formSelector: '#booking-form',
+    hotelNameSelector: '#booking-hotel-name',
+    hotelInputSelector: '#booking-hotel-input',
+    nameInputSelector: '#booking-name',
+    emailInputSelector: '#booking-email',
+    nameErrorSelector: '#booking-name-error',
+    emailErrorSelector: '#booking-email-error',
+    successSelector: '#booking-success',
+  }).init();
 }
 
-// ─── Загрузка данных из API ───────────────────────────────────────────────────
+function normalizeCompetitionButtons() {
+  const labels = ['Premier League', 'Champions League', 'Results'];
+
+  document.querySelectorAll('.competition-switcher__button').forEach((button, index) => {
+    button.textContent = labels[index] ?? button.textContent;
+    button.type = 'button';
+    button.removeAttribute('style');
+  });
+
+  const clearCacheButton = document.querySelector('[data-clear-cache]');
+  if (clearCacheButton) {
+    clearCacheButton.textContent = 'Clear Cache';
+  }
+}
 
 async function loadMatchesSection() {
   const container = document.querySelector('[data-matches-list]');
@@ -85,14 +83,13 @@ async function loadMatchesSection() {
   showLoadingState(container);
 
   const competition = container.dataset.competition ?? API_CONFIG.COMPETITIONS.PL;
-  const status      = container.dataset.status      ?? 'SCHEDULED';
+  const status = container.dataset.status ?? 'SCHEDULED';
 
-  // onUpdate = вызывается при фоновом обновлении кэша
   const onUpdate = (freshData) => {
     renderMatches(container, freshData, false);
     showInAppNotification(
-      '🔄 Данные обновлены',
-      `Загружены свежие матчи (${competition})`,
+      'Matches Updated',
+      `Fresh ${competition} fixtures are now available.`,
       'info'
     );
   };
@@ -106,7 +103,11 @@ async function loadMatchesSection() {
   if (data) {
     renderMatches(container, data, fromCache);
     if (fromCache) {
-      showInAppNotification('📦 Данные из кэша', 'API временно недоступен. Показаны сохранённые данные.', 'warning');
+      showInAppNotification(
+        'Cached Data',
+        'The API is temporarily unavailable, so saved data is being shown.',
+        'warning'
+      );
     }
   }
 }
@@ -116,6 +117,7 @@ async function loadStandingsSection() {
   if (!container) return;
 
   const competition = container.dataset.competition ?? API_CONFIG.COMPETITIONS.PL;
+
   const mountStandings = (data) => {
     renderStandings(container, data);
     if (Array.isArray(data) && data.length) {
@@ -123,20 +125,18 @@ async function loadStandingsSection() {
     }
   };
 
-  const onUpdate = (freshData) => {
-    mountStandings(freshData);
-  };
-
   try {
-    const standings = await getStandings(competition, onUpdate);
+    const standings = await getStandings(competition, mountStandings);
     mountStandings(standings);
-  } catch (err) {
-    console.error('[App] Ошибка таблицы:', err.message);
-    container.innerHTML = `<p style="color:#fca5a5;padding:16px;font-family:'Source Code Pro',monospace;">⚠️ ${err.message}</p>`;
+  } catch (error) {
+    console.error('[App] Standings error:', error.message);
+    container.innerHTML = `
+      <p style="color:#fca5a5;padding:16px;font-family:'Source Code Pro',monospace;">
+        ${error.message}
+      </p>
+    `;
   }
 }
-
-// ─── Кнопка ручной очистки кэша (dev-helper) ─────────────────────────────────
 
 function initCacheControls() {
   const clearBtn = document.querySelector('[data-clear-cache]');
@@ -144,69 +144,57 @@ function initCacheControls() {
 
   clearBtn.addEventListener('click', () => {
     const count = clearAllCache();
-    showInAppNotification('🗑 Кэш очищен', `Удалено ${count} записей. Обновите страницу.`, 'warning');
+    showInAppNotification(
+      'Cache Cleared',
+      `${count} cached entries were removed. Refresh the page to reload data.`,
+      'warning'
+    );
   });
 
-  // Очищаем протухшие при старте
   clearExpired();
 
-  // Выводим статистику кэша в консоль для скриншота отчёта
   const stats = getCacheStats();
   if (stats.length) {
-    console.group('[Cache] Статистика кэша:');
+    console.group('[Cache] Cache statistics:');
     console.table(stats);
     console.groupEnd();
   }
 }
 
-// ─── Инициализация уведомлений ────────────────────────────────────────────────
-
 function initNotifications() {
-  // Показываем баннер предложения через 2 сек после загрузки
   setTimeout(offerNotificationPermission, 2000);
-
-  // Запускаем polling новых результатов
   startPolling(API_CONFIG.COMPETITIONS.PL, 'LIVE');
 }
 
-// ─── Offline-индикатор ────────────────────────────────────────────────────────
-
 function initOfflineDetection() {
-  const showOffline = () => showErrorBanner('Нет подключения к интернету. Показаны кэшированные данные.', true);
+  const showOffline = () => showErrorBanner('No internet connection. Cached data is being shown.', true);
   const hideOffline = () => {
     const banner = document.getElementById('sa-error-banner');
     if (banner) banner.style.display = 'none';
-    showInAppNotification('✅ Соединение восстановлено', 'Данные будут обновлены автоматически.', 'success');
+
+    showInAppNotification('Connection Restored', 'Data will refresh automatically.', 'success');
   };
 
   window.addEventListener('offline', showOffline);
-  window.addEventListener('online',  hideOffline);
+  window.addEventListener('online', hideOffline);
 
   if (!navigator.onLine) showOffline();
 }
 
-// ─── Точка входа ──────────────────────────────────────────────────────────────
-
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[SportArena] Инициализация...');
+  console.log('[SportArena] Initializing...');
 
-  // 1. Существующие компоненты
   initExistingComponents();
-
-  // 2. Offline-детектор
+  normalizeCompetitionButtons();
   initOfflineDetection();
-
-  // 3. Кэш-контролы и очистка
   initCacheControls();
 
-  // 4. Данные из API (параллельно)
   await Promise.allSettled([
     loadMatchesSection(),
     loadStandingsSection(),
   ]);
 
-  // 5. Уведомления (после загрузки данных)
   initNotifications();
 
-  console.log('[SportArena] ✓ Инициализация завершена');
+  console.log('[SportArena] Initialization finished.');
 });

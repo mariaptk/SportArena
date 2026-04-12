@@ -1,19 +1,28 @@
-/**
- * uiRenderer.js — рендер данных из API в существующую разметку SportArena
- * Не меняет дизайн, только заполняет существующие блоки данными
- */
-
 import { formatMatchDate, getStatusLabel, formatScore } from './dataParser.js';
 
-// ─── Состояние ──────────────────────────────────────────────────────────────
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
-let currentError = null;
+function buildMatchPayload(match, statusLabel, dateLabel, scoreLabel, stageLabel) {
+  return encodeURIComponent(JSON.stringify({
+    competition: match.competition,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+    homeCrest: match.homeCrest,
+    awayCrest: match.awayCrest,
+    statusLabel,
+    dateLabel,
+    score: scoreLabel,
+    stage: stageLabel,
+  }));
+}
 
-// ─── Утилиты ────────────────────────────────────────────────────────────────
-
-/**
- * Показать/скрыть баннер ошибки
- */
 export function showErrorBanner(message, isFromCache = false) {
   let banner = document.getElementById('sa-error-banner');
   if (!banner) {
@@ -32,14 +41,13 @@ export function showErrorBanner(message, isFromCache = false) {
       align-items: center;
       gap: 10px;
     `;
-    // Вставляем после hero-секции
     const heroSection = document.querySelector('.hero') ?? document.body;
     heroSection.insertAdjacentElement('afterend', banner);
   }
 
   banner.innerHTML = `
-    <span>⚠️</span>
-    <span>${message}${isFromCache ? ' <em>(показаны кэшированные данные)</em>' : ''}</span>
+    <span>Alert</span>
+    <span>${escapeHtml(message)}${isFromCache ? ' <em>(cached data shown)</em>' : ''}</span>
     <button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:18px;">×</button>
   `;
   banner.style.display = 'flex';
@@ -50,10 +58,9 @@ export function hideErrorBanner() {
   if (banner) banner.style.display = 'none';
 }
 
-// ─── Индикатор загрузки ───────────────────────────────────────────────────────
-
 export function showLoadingState(container) {
   if (!container) return;
+
   container.innerHTML = `
     <div style="
       padding: 40px;
@@ -61,64 +68,63 @@ export function showLoadingState(container) {
       color: rgba(248,250,252,0.6);
       font-family: 'Source Code Pro', monospace;
     ">
-      <div style="font-size:32px;margin-bottom:12px;animation:spin 1.5s linear infinite;display:inline-block;">⚽</div>
-      <p>Загрузка данных...</p>
+      <div style="font-size:32px;margin-bottom:12px;animation:spin 1.5s linear infinite;display:inline-block;">⏳</div>
+      <p>Loading matches...</p>
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     </div>
   `;
 }
 
-// ─── Рендер карточки матча ────────────────────────────────────────────────────
-
-function renderMatchCard(match) {
+function renderMatchRow(match) {
   const isLive = match.status === 'LIVE' || match.status === 'IN_PLAY';
   const isFinished = match.status === 'FINISHED';
-  const stageLabel = [match.stage, match.matchday ? `Тур ${match.matchday}` : '']
+  const statusLabel = getStatusLabel(match.status);
+  const dateLabel = formatMatchDate(match.utcDate);
+  const scoreLabel = isFinished || isLive ? formatScore(match) : 'vs';
+  const stageLabel = [match.stage, match.matchday ? `Matchday ${match.matchday}` : '']
     .filter(Boolean)
     .join(' • ');
+  const payload = buildMatchPayload(match, statusLabel, dateLabel, scoreLabel, stageLabel);
 
   return `
-    <div class="event-card event-card--compact" itemscope itemtype="https://schema.org/SportsEvent" data-match-id="${match.id}">
-      <div class="event-card__topline">
-        <p class="event-card__name">${match.competition}</p>
-        <p class="event-card__date" itemprop="startDate">${formatMatchDate(match.utcDate)}</p>
-      </div>
-      <div class="event-card__competitors event-card__competitors--compact">
-        <div class="event-card__team-side event-card__team-side--home">
-          ${match.homeCrest ? `<img src="${match.homeCrest}" alt="${match.homeTeam}" class="event-card__crest">` : ''}
-          <span class="event-card__team" itemprop="homeTeam">${match.homeTeam}</span>
-        </div>
-        <span class="event-card__vs event-card__vs--compact" itemprop="name">
-          ${(isFinished || isLive) ? formatScore(match) : 'vs'}
+    <button
+      type="button"
+      class="match-row"
+      data-match-payload="${payload}"
+      aria-label="Open details for ${escapeHtml(match.homeTeam)} versus ${escapeHtml(match.awayTeam)}"
+    >
+      <span class="match-row__header">
+        <span class="match-row__competition">${escapeHtml(match.competition)}</span>
+        <span class="match-row__date">${escapeHtml(dateLabel)}</span>
+      </span>
+      <span class="match-row__body">
+        <span class="match-row__teams">
+          <span class="match-row__team">
+            ${match.homeCrest ? `<img src="${escapeHtml(match.homeCrest)}" alt="${escapeHtml(match.homeTeam)} crest" class="match-row__crest">` : ''}
+            <span class="match-row__team-name">${escapeHtml(match.homeTeam)}</span>
+          </span>
+          <span class="match-row__team">
+            ${match.awayCrest ? `<img src="${escapeHtml(match.awayCrest)}" alt="${escapeHtml(match.awayTeam)} crest" class="match-row__crest">` : ''}
+            <span class="match-row__team-name">${escapeHtml(match.awayTeam)}</span>
+          </span>
         </span>
-        <div class="event-card__team-side event-card__team-side--away">
-          <span class="event-card__team" itemprop="awayTeam">${match.awayTeam}</span>
-          ${match.awayCrest ? `<img src="${match.awayCrest}" alt="${match.awayTeam}" class="event-card__crest">` : ''}
-        </div>
-      </div>
-      <div class="event-card__meta-row">
-        <p class="event-card__description" style="${isLive ? 'color:#ef4444;font-weight:700;' : ''}">
-          ${getStatusLabel(match.status)}
-        </p>
-        ${stageLabel ? `<p class="event-card__stage">${stageLabel}</p>` : ''}
-      </div>
-    </div>
+        <span class="match-row__summary">
+          <span class="match-row__score">${escapeHtml(scoreLabel)}</span>
+          <span class="match-row__status ${isLive ? 'match-row__status--live' : ''}">${escapeHtml(statusLabel)}</span>
+          ${stageLabel ? `<span class="match-row__stage">${escapeHtml(stageLabel)}</span>` : ''}
+        </span>
+      </span>
+    </button>
   `;
 }
 
-/**
- * Отрендерить список матчей в контейнер
- * @param {HTMLElement} container
- * @param {NormalizedMatch[]} matches
- * @param {boolean} fromCache  показывать метку кэша
- */
 export function renderMatches(container, matches, fromCache = false) {
   if (!container) return;
 
   if (!matches || matches.length === 0) {
     container.innerHTML = `
       <div style="padding:30px;text-align:center;color:rgba(248,250,252,0.5);font-family:'Source Code Pro',monospace;">
-        Матчи не найдены.
+        No matches found.
       </div>
     `;
     return;
@@ -126,23 +132,18 @@ export function renderMatches(container, matches, fromCache = false) {
 
   const cacheLabel = fromCache
     ? `<p style="font-size:11px;color:rgba(248,250,252,0.4);margin-bottom:8px;font-family:'Source Code Pro',monospace;">
-        📦 Данные из кэша
+        Cached snapshot
        </p>`
     : '';
 
   container.innerHTML = `
     ${cacheLabel}
-    <div class="sa-match-grid">
-      ${matches.map(renderMatchCard).join('')}
+    <div class="sa-match-list">
+      ${matches.map(renderMatchRow).join('')}
     </div>
   `;
 }
 
-// ─── Рендер таблицы лиги ─────────────────────────────────────────────────────
-
-/**
- * Отрендерить таблицу в элемент с data-sort-enabled или в указанный контейнер
- */
 export function renderStandings(container, standings) {
   if (!container) return;
 
@@ -163,22 +164,22 @@ export function renderStandings(container, standings) {
         <thead>
           <tr>
             <th data-sort="position" style="width:40px;">#</th>
-            <th data-sort="team">Команда</th>
-            <th data-sort="played">И</th>
-            <th data-sort="won">В</th>
-            <th data-sort="draw">Н</th>
-            <th data-sort="lost">П</th>
-            <th data-sort="goalDiff">РМ</th>
-            <th data-sort="points" style="font-weight:700;">О</th>
+            <th data-sort="team">Team</th>
+            <th data-sort="played">Played</th>
+            <th data-sort="won">Won</th>
+            <th data-sort="draw">Draw</th>
+            <th data-sort="lost">Lost</th>
+            <th data-sort="goalDiff">GD</th>
+            <th data-sort="points" style="font-weight:700;">Pts</th>
           </tr>
         </thead>
         <tbody>
-          ${standings.map(row => `
+          ${standings.map((row) => `
             <tr>
               <td>${row.position}</td>
               <td>
-                ${row.crest ? `<img src="${row.crest}" alt="${row.team}" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px;">` : ''}
-                ${row.team}
+                ${row.crest ? `<img src="${escapeHtml(row.crest)}" alt="${escapeHtml(row.team)} crest" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px;">` : ''}
+                ${escapeHtml(row.team)}
               </td>
               <td>${row.played}</td>
               <td>${row.won}</td>
@@ -194,33 +195,30 @@ export function renderStandings(container, standings) {
   `;
 }
 
-// ─── Рендер последних результатов (TheSportsDB) ───────────────────────────────
-
 export function renderRecentResults(container, results) {
   if (!container || !results?.length) return;
 
-  container.innerHTML = results.map(r => `
+  container.innerHTML = results.map((result) => `
     <div class="news-item" style="cursor:default;min-height:auto;">
       <p class="news-item__title" style="font-size:14px;">
-        ${r.homeTeam} <strong>${r.homeScore} : ${r.awayScore}</strong> ${r.awayTeam}
+        ${escapeHtml(result.homeTeam)} <strong>${escapeHtml(result.homeScore)} : ${escapeHtml(result.awayScore)}</strong> ${escapeHtml(result.awayTeam)}
       </p>
       <p class="news-item__text" style="-webkit-line-clamp:unset;">
-        ${r.league} · ${r.date}
+        ${escapeHtml(result.league)} · ${escapeHtml(result.date)}
       </p>
-      ${r.thumb ? `
+      ${result.thumb ? `
         <figure class="news-item__figure">
-          <img src="${r.thumb}" alt="${r.homeTeam} vs ${r.awayTeam}" class="news-item__image" onerror="this.style.display='none'">
+          <img src="${escapeHtml(result.thumb)}" alt="${escapeHtml(result.homeTeam)} vs ${escapeHtml(result.awayTeam)}" class="news-item__image" onerror="this.style.display='none'">
         </figure>
       ` : ''}
     </div>
   `).join('');
 }
 
-// ─── Метка "последнее обновление" ────────────────────────────────────────────
-
 export function renderLastUpdated(container, timestamp) {
   if (!container) return;
-  const time = timestamp ? new Date(timestamp).toLocaleTimeString('ru-RU') : 'неизвестно';
+
+  const time = timestamp ? new Date(timestamp).toLocaleTimeString('en-GB') : 'unknown';
   let label = container.querySelector('.sa-last-updated');
   if (!label) {
     label = document.createElement('p');
@@ -228,5 +226,5 @@ export function renderLastUpdated(container, timestamp) {
     label.style.cssText = 'font-size:11px;color:rgba(248,250,252,0.4);margin-top:8px;font-family:"Source Code Pro",monospace;';
     container.appendChild(label);
   }
-  label.textContent = `Обновлено: ${time}`;
+  label.textContent = `Updated: ${time}`;
 }
