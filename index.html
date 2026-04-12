@@ -263,15 +263,32 @@
                         <p class="news-item__text">The 2025-2026 Champions League season is heating up with fierce competition among Europe's elite clubs.</p>
                     </article>
 
-                    <!-- ИЗМЕНЕНИЕ 3: блок результатов из TheSportsDB (НОВОЕ, без ключа) -->
-                    <h3 class="news__title" style="font-size:22px;margin-top:28px;margin-bottom:12px;">
-                        Recent Match Results: Premier League
-                        <span style="font-size:13px;opacity:0.5;font-weight:400;">via TheSportsDB</span>
-                    </h3>
-                    <div data-recent-results>
-                        <!-- заполняется через JS автоматически -->
-                    </div>
+                    
 
+                </section>
+
+                <section class="standings-section" aria-labelledby="standings-heading">
+                    <h3 id="standings-heading" class="standings-section__title">League Table</h3>
+                    <p class="standings-section__subtitle">The table updates for the currently selected competition.</p>
+
+                    <div data-standings-container data-competition="PL">
+                        <div class="table-sorter">
+                            <table class="league-table" id="league-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" data-sort="team">Team</th>
+                                        <th scope="col" data-sort="points">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Real Madrid</td><td>89</td></tr>
+                                    <tr><td>Liverpool</td><td>84</td></tr>
+                                    <tr><td>Boston Celtics</td><td>92</td></tr>
+                                    <tr><td>Lakers</td><td>88</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </section>
 
             </section>
@@ -306,29 +323,6 @@
                 </div>
 
                 <a href="hotels.html" class="sidebar__action-button" id="load-more-hotels">More Hotels</a>
-
-                <h3 class="sidebar__title">League Table</h3>
-
-                <!-- ИЗМЕНЕНИЕ 4: таблица в data-standings-container (НОВОЕ)
-                     Статическая таблица внутри — fallback до ответа API -->
-                <div data-standings-container data-competition="PL">
-                    <div class="table-sorter">
-                        <table class="league-table" id="league-table">
-                            <thead>
-                                <tr>
-                                    <th scope="col" data-sort="team">Team</th>
-                                    <th scope="col" data-sort="points">Points</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Real Madrid</td><td>89</td></tr>
-                                <tr><td>Liverpool</td><td>84</td></tr>
-                                <tr><td>Boston Celtics</td><td>92</td></tr>
-                                <tr><td>Lakers</td><td>88</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
                 <!-- ИЗМЕНЕНИЕ 5: кнопка очистки кэша (НОВОЕ) -->
                 <button
@@ -417,6 +411,7 @@
     <script type="module">
         import { safeGetMatches, getStandings } from './js/services/matchSyncService.js';
         import { renderMatches, renderStandings, showLoadingState } from './js/utils/uiRenderer.js';
+        import { TableSorter } from './js/components/TableSorter.js';
 
         window.switchCompetition = async (competition, status) => {
             const matchesContainer = document.querySelector('[data-matches-list]');
@@ -439,6 +434,9 @@
             try {
                 const standings = await getStandings(nextCompetition);
                 renderStandings(standingsContainer, standings);
+                if (Array.isArray(standings) && standings.length) {
+                    new TableSorter('#league-table').init();
+                }
             } catch (error) {
                 console.warn('[SportArena] Failed to refresh standings:', error?.message ?? error);
             }

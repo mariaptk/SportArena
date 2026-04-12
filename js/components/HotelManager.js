@@ -132,7 +132,7 @@ export class HotelManager {
             clearText(this.emailError);
             clearText(this.successMessage);
 
-            this.hotelNameElement.textContent = `Вы выбрали: ${hotelName}`;
+            this.hotelNameElement.textContent = `You chose: ${hotelName}`;
             this.hotelInput.value = hotelName;
 
             toggleElementVisibility(this.modal, true);

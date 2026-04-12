@@ -13,7 +13,7 @@ import { Voting }        from './components/Voting.js';
 
 // ─── Новые API-модули ─────────────────────────────────────────────────────────
 import { API_CONFIG }    from './api/config.js';
-import { safeGetMatches, getStandings, getRecentResults } from './services/matchSyncService.js';
+import { safeGetMatches, getStandings } from './services/matchSyncService.js';
 import {
   showInAppNotification,
   offerNotificationPermission,
@@ -22,8 +22,6 @@ import {
 import {
   renderMatches,
   renderStandings,
-  renderRecentResults,
-  renderLastUpdated,
   showLoadingState,
   showErrorBanner,
 } from './utils/uiRenderer.js';
@@ -58,7 +56,7 @@ function initExistingComponents() {
   newsModal.init();
 
   // Сортировщик таблицы (статической, если API не загрузил)
-  const tableSorter = new TableSorter('#standings-table');
+  const tableSorter = new TableSorter('#league-table');
   tableSorter.init();
 
   // Менеджер отелей (на hotels.html)
@@ -118,37 +116,22 @@ async function loadStandingsSection() {
   if (!container) return;
 
   const competition = container.dataset.competition ?? API_CONFIG.COMPETITIONS.PL;
+  const mountStandings = (data) => {
+    renderStandings(container, data);
+    if (Array.isArray(data) && data.length) {
+      new TableSorter('#league-table').init();
+    }
+  };
 
   const onUpdate = (freshData) => {
-    renderStandings(container, freshData);
+    mountStandings(freshData);
   };
 
   try {
     const standings = await getStandings(competition, onUpdate);
-    renderStandings(container, standings);
+    mountStandings(standings);
   } catch (err) {
     console.error('[App] Ошибка таблицы:', err.message);
-    container.innerHTML = `<p style="color:#fca5a5;padding:16px;font-family:'Source Code Pro',monospace;">⚠️ ${err.message}</p>`;
-  }
-}
-
-async function loadRecentResults() {
-  const container = document.querySelector('[data-recent-results]');
-  if (!container) return;
-
-  showLoadingState(container);
-
-  const onUpdate = (freshData) => {
-    renderRecentResults(container, freshData);
-    renderLastUpdated(container, Date.now());
-  };
-
-  try {
-    const results = await getRecentResults(onUpdate);
-    renderRecentResults(container, results);
-    renderLastUpdated(container, Date.now());
-  } catch (err) {
-    console.error('[App] Ошибка последних результатов:', err.message);
     container.innerHTML = `<p style="color:#fca5a5;padding:16px;font-family:'Source Code Pro',monospace;">⚠️ ${err.message}</p>`;
   }
 }
@@ -220,7 +203,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await Promise.allSettled([
     loadMatchesSection(),
     loadStandingsSection(),
-    loadRecentResults(),
   ]);
 
   // 5. Уведомления (после загрузки данных)

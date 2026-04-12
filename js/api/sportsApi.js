@@ -6,6 +6,9 @@
 import { API_CONFIG } from './config.js';
 import { apiFetch } from './apiService.js';
 
+const MATCHES_TARGET_COUNT = 3;
+const MATCH_SEARCH_WINDOW_DAYS = 7;
+
 function getSportsDbCompetition(competitionCode) {
   return API_CONFIG.SPORTSDB_COMPETITIONS[competitionCode] ?? API_CONFIG.SPORTSDB_COMPETITIONS.PL;
 }
@@ -19,15 +22,42 @@ function toUtcDate(dateEvent, timeValue = '00:00:00') {
 function mapSportsDbStatus(status) {
   const normalized = (status || '').toUpperCase();
 
-  if (!normalized || normalized === 'NS') return 'SCHEDULED';
-  if (['FT', 'AOT'].includes(normalized)) return 'FINISHED';
-  if (['HT', 'BT', 'LIVE'].includes(normalized)) return 'IN_PLAY';
+  if (!normalized || ['NS', 'NOT STARTED', 'TBD', 'TIME TO BE DEFINED'].includes(normalized)) return 'SCHEDULED';
+  if (['FT', 'AOT', 'MATCH FINISHED', 'AFTER EXTRA TIME', 'FULL TIME'].includes(normalized)) return 'FINISHED';
+  if (['HT', 'BT', 'LIVE', 'IN PLAY', '1H', '2H'].includes(normalized)) return 'IN_PLAY';
   if (normalized.startsWith('Q') || normalized.startsWith('IN')) return 'IN_PLAY';
   if (normalized === 'POST' || normalized === 'PST') return 'POSTPONED';
   if (normalized === 'CANC') return 'CANCELLED';
   if (normalized === 'ABD' || normalized === 'INT' || normalized === 'INTR') return 'SUSPENDED';
 
   return normalized;
+}
+
+function formatIsoDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getTodayIsoDate() {
+  return formatIsoDate(new Date());
+}
+
+function shiftIsoDate(isoDate, offsetDays) {
+  const date = new Date(`${isoDate}T12:00:00`);
+  date.setDate(date.getDate() + offsetDays);
+  return formatIsoDate(date);
+}
+
+function sortMatchesByDate(matches, direction = 'asc') {
+  const sorted = [...matches].sort((first, second) => {
+    const firstTime = first.utcDate ? new Date(first.utcDate).getTime() : 0;
+    const secondTime = second.utcDate ? new Date(second.utcDate).getTime() : 0;
+    return firstTime - secondTime;
+  });
+
+  return direction === 'desc' ? sorted.reverse() : sorted;
 }
 
 function normalizeSportsDbMatch(event, fallbackCompetition = '', forcedStatus = '') {
@@ -79,24 +109,58 @@ async function fetchLeagueEvents(competitionCode, endpoint, forcedStatus = '') {
   return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name, forcedStatus));
 }
 
-async function fetchLeagueEventsByDay(competitionCode, date) {
+async function fetchLeagueEventsByDay(competitionCode, date, forcedStatus = '') {
   const competition = getSportsDbCompetition(competitionCode);
-  const url = `${API_CONFIG.SPORTSDB_BASE}/eventsday.php?d=${date}&l=${encodeURIComponent(competition.name)}`;
+  const url = `${API_CONFIG.SPORTSDB_BASE}/eventsday.php?d=${date}&s=Soccer&l=${encodeURIComponent(competition.name)}`;
   const data = await apiFetch(url);
-  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name));
+  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name, forcedStatus));
+}
+
+async function fetchLeagueEventsWindow(
+  competitionCode,
+  {
+    direction = 'forward',
+    minMatches = MATCHES_TARGET_COUNT,
+    maxDays = MATCH_SEARCH_WINDOW_DAYS,
+    forcedStatus = '',
+    startDate = getTodayIsoDate(),
+  } = {}
+) {
+  const seenIds = new Set();
+  const collected = [];
+
+  for (let step = 0; step < maxDays && collected.length < minMatches; step += 1) {
+    const offset = direction === 'backward' ? -step : step;
+    const date = shiftIsoDate(startDate, offset);
+    const dayMatches = await fetchLeagueEventsByDay(competitionCode, date, forcedStatus);
+
+    for (const match of dayMatches) {
+      if (seenIds.has(match.id)) continue;
+      seenIds.add(match.id);
+      collected.push(match);
+    }
+  }
+
+  return sortMatchesByDate(collected, direction === 'backward' ? 'desc' : 'asc').slice(0, minMatches);
 }
 
 export async function fetchMatches(competitionCode, status) {
   let matches = [];
 
   if (status === 'FINISHED') {
-    matches = await fetchLeagueEvents(competitionCode, 'eventspastleague.php', 'FINISHED');
+    matches = await fetchLeagueEventsWindow(competitionCode, {
+      direction: 'backward',
+      forcedStatus: 'FINISHED',
+    });
   } else if (status === 'LIVE' || status === 'IN_PLAY') {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getTodayIsoDate();
     matches = await fetchLeagueEventsByDay(competitionCode, today);
     matches = matches.filter((match) => match.status === 'LIVE' || match.status === 'IN_PLAY');
   } else {
-    matches = await fetchLeagueEvents(competitionCode, 'eventsnextleague.php', 'SCHEDULED');
+    matches = await fetchLeagueEventsWindow(competitionCode, {
+      direction: 'forward',
+      forcedStatus: 'SCHEDULED',
+    });
   }
 
   console.log(`[sportsApi] Received ${matches.length} matches (${competitionCode}${status ? '/' + status : ''})`);
@@ -136,9 +200,14 @@ export async function fetchSportsDBEvents(leagueName) {
   const competition = Object.values(API_CONFIG.SPORTSDB_COMPETITIONS)
     .find((item) => item.name === leagueName) ?? API_CONFIG.SPORTSDB_COMPETITIONS.PL;
 
-  const url = `${API_CONFIG.SPORTSDB_BASE}/eventsnextleague.php?id=${competition.id}`;
-  const data = await apiFetch(url);
-  const events = (data.events ?? []).slice(0, 10);
+  const events = await fetchLeagueEventsWindow(
+    Object.entries(API_CONFIG.SPORTSDB_COMPETITIONS).find(([, item]) => item.id === competition.id)?.[0] ?? 'PL',
+    {
+      direction: 'forward',
+      minMatches: 3,
+      forcedStatus: 'SCHEDULED',
+    }
+  );
   console.log(`[sportsApi] TheSportsDB: ${events.length} events`);
   return events;
 }
@@ -151,17 +220,21 @@ export async function fetchTeamInfo(teamName) {
 }
 
 export async function fetchRecentResults() {
-  const url = `${API_CONFIG.SPORTSDB_BASE}/eventspastleague.php?id=4328`;
-  const data = await apiFetch(url);
-  return (data.events ?? []).slice(0, 6).map((ev) => ({
-    id: ev.idEvent,
-    homeTeam: ev.strHomeTeam,
-    awayTeam: ev.strAwayTeam,
-    homeScore: ev.intHomeScore,
-    awayScore: ev.intAwayScore,
-    date: ev.dateEvent,
+  const results = await fetchLeagueEventsWindow('PL', {
+    direction: 'backward',
+    minMatches: 6,
+    forcedStatus: 'FINISHED',
+  });
+
+  return results.map((match) => ({
+    id: match.id,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+    date: match.utcDate.slice(0, 10),
     status: 'FINISHED',
-    league: ev.strLeague,
-    thumb: ev.strThumb ?? '',
+    league: match.competition,
+    thumb: '',
   }));
 }

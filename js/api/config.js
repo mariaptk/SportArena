@@ -15,7 +15,7 @@ const FOOTBALL_DATA_BASE = isLocalDev
 export const API_CONFIG = {
   FOOTBALL_DATA_KEY: '2653331a276f4ce3bc6592eaa77d2a5b',
   FOOTBALL_DATA_BASE,
-  SPORTSDB_BASE: 'https://www.thesportsdb.com/api/v1/json/3',
+  SPORTSDB_BASE: 'https://www.thesportsdb.com/api/v1/json/123',
 
   COMPETITIONS: {
     PL: 'PL',
@@ -59,6 +59,6 @@ export const API_CONFIG = {
   POLL_INTERVAL_ACTIVE: 90 * 1000,
   POLL_INTERVAL_HIDDEN: 300 * 1000,
 
-  CACHE_SCHEMA_VERSION: '1.0.0',
+  CACHE_SCHEMA_VERSION: '1.0.3',
   REQUEST_TIMEOUT_MS: 8000,
 };

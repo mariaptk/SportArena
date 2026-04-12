@@ -73,28 +73,34 @@ export function showLoadingState(container) {
 function renderMatchCard(match) {
   const isLive = match.status === 'LIVE' || match.status === 'IN_PLAY';
   const isFinished = match.status === 'FINISHED';
+  const stageLabel = [match.stage, match.matchday ? `Тур ${match.matchday}` : '']
+    .filter(Boolean)
+    .join(' • ');
 
   return `
-    <div class="event-card" itemscope itemtype="https://schema.org/SportsEvent" data-match-id="${match.id}">
-      <div class="event-card__header">
-        <h3 class="event-card__name" itemprop="name">${match.competition}</h3>
+    <div class="event-card event-card--compact" itemscope itemtype="https://schema.org/SportsEvent" data-match-id="${match.id}">
+      <div class="event-card__topline">
+        <p class="event-card__name">${match.competition}</p>
         <p class="event-card__date" itemprop="startDate">${formatMatchDate(match.utcDate)}</p>
-        ${match.matchday ? `<p class="event-card__date">Тур ${match.matchday}</p>` : ''}
       </div>
-      <div class="event-card__content">
-        <div class="event-card__competitors">
-          ${match.homeCrest ? `<img src="${match.homeCrest}" alt="${match.homeTeam}" style="width:24px;height:24px;object-fit:contain;margin-right:6px;">` : ''}
+      <div class="event-card__competitors event-card__competitors--compact">
+        <div class="event-card__team-side event-card__team-side--home">
+          ${match.homeCrest ? `<img src="${match.homeCrest}" alt="${match.homeTeam}" class="event-card__crest">` : ''}
           <span class="event-card__team" itemprop="homeTeam">${match.homeTeam}</span>
-          <span class="event-card__vs">
-            ${(isFinished || isLive) ? formatScore(match) : 'vs'}
-          </span>
-          ${match.awayCrest ? `<img src="${match.awayCrest}" alt="${match.awayTeam}" style="width:24px;height:24px;object-fit:contain;margin-right:6px;">` : ''}
-          <span class="event-card__team" itemprop="awayTeam">${match.awayTeam}</span>
         </div>
+        <span class="event-card__vs event-card__vs--compact" itemprop="name">
+          ${(isFinished || isLive) ? formatScore(match) : 'vs'}
+        </span>
+        <div class="event-card__team-side event-card__team-side--away">
+          <span class="event-card__team" itemprop="awayTeam">${match.awayTeam}</span>
+          ${match.awayCrest ? `<img src="${match.awayCrest}" alt="${match.awayTeam}" class="event-card__crest">` : ''}
+        </div>
+      </div>
+      <div class="event-card__meta-row">
         <p class="event-card__description" style="${isLive ? 'color:#ef4444;font-weight:700;' : ''}">
           ${getStatusLabel(match.status)}
         </p>
-        ${match.stage ? `<p class="event-card__description" style="font-size:12px;opacity:0.7;">${match.stage}</p>` : ''}
+        ${stageLabel ? `<p class="event-card__stage">${stageLabel}</p>` : ''}
       </div>
     </div>
   `;
@@ -124,7 +130,12 @@ export function renderMatches(container, matches, fromCache = false) {
        </p>`
     : '';
 
-  container.innerHTML = cacheLabel + matches.map(renderMatchCard).join('');
+  container.innerHTML = `
+    ${cacheLabel}
+    <div class="sa-match-grid">
+      ${matches.map(renderMatchCard).join('')}
+    </div>
+  `;
 }
 
 // ─── Рендер таблицы лиги ─────────────────────────────────────────────────────
@@ -133,11 +144,22 @@ export function renderMatches(container, matches, fromCache = false) {
  * Отрендерить таблицу в элемент с data-sort-enabled или в указанный контейнер
  */
 export function renderStandings(container, standings) {
-  if (!container || !standings?.length) return;
+  if (!container) return;
+
+  if (!standings?.length) {
+    container.innerHTML = `
+      <div class="table-sorter">
+        <p style="color:rgba(248,250,252,0.7);padding:16px;font-family:'Source Code Pro',monospace;">
+          Standings are not available for this competition in TheSportsDB.
+        </p>
+      </div>
+    `;
+    return;
+  }
 
   container.innerHTML = `
     <div class="table-sorter">
-      <table class="league-table" id="api-standings-table" data-sort-enabled>
+      <table class="league-table" id="league-table" data-sort-enabled>
         <thead>
           <tr>
             <th data-sort="position" style="width:40px;">#</th>

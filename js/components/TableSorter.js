@@ -1,6 +1,7 @@
 export class TableSorter {
     constructor(tableSelector) {
-        this.table = document.querySelector(tableSelector);
+        this.tableSelector = tableSelector;
+        this.table = null;
         this.sortDirection = {
             team: true,
             points: true
@@ -9,6 +10,7 @@ export class TableSorter {
 
     init() {
         try {
+            this.table = document.querySelector(this.tableSelector);
             if (!this.table) {
                 console.log("TableSorter: table not found.");
                 return;
@@ -35,14 +37,21 @@ export class TableSorter {
         try {
             const tbody = this.table.querySelector("tbody");
             const rows = Array.from(tbody.querySelectorAll("tr"));
-            const isAscending = this.sortDirection[sortKey];
+            const isAscending = this.sortDirection[sortKey] ?? true;
+            const headerCell = this.table.querySelector(`th[data-sort="${sortKey}"]`);
+            const columnIndex = headerCell
+                ? Array.from(headerCell.parentElement.children).indexOf(headerCell)
+                : 0;
+            const numericColumns = new Set(["position", "played", "won", "draw", "lost", "goalDiff", "points"]);
 
             rows.sort((firstRow, secondRow) => {
-                const firstValue = firstRow.children[sortKey === "team" ? 0 : 1].textContent.trim();
-                const secondValue = secondRow.children[sortKey === "team" ? 0 : 1].textContent.trim();
+                const firstValue = firstRow.children[columnIndex]?.textContent.trim() ?? "";
+                const secondValue = secondRow.children[columnIndex]?.textContent.trim() ?? "";
 
-                if (sortKey === "points") {
-                    return isAscending ? Number(firstValue) - Number(secondValue) : Number(secondValue) - Number(firstValue);
+                if (numericColumns.has(sortKey)) {
+                    const firstNumber = Number(firstValue.replace(/[^\d.-]/g, ""));
+                    const secondNumber = Number(secondValue.replace(/[^\d.-]/g, ""));
+                    return isAscending ? firstNumber - secondNumber : secondNumber - firstNumber;
                 }
 
                 return isAscending
