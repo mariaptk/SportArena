@@ -184,7 +184,16 @@ export function startPolling(competition = 'PL', status = 'LIVE') {
   });
 
   schedule();
-  console.log('[Notification] Polling started.');
+  
+  // Show initial polling notification
+  showInAppNotification(
+    '🔔 Polling Started',
+    `Watching ${currentCompetition} matches for updates every 90 seconds...`,
+    'success'
+  );
+  
+  console.log(`[Notification] ✅ Polling started for ${competition} ${status}`);
+  console.log(`[Notification] 📡 Updates every ${API_CONFIG.POLL_INTERVAL_ACTIVE / 1000}s (active) / ${API_CONFIG.POLL_INTERVAL_HIDDEN / 1000}s (hidden)`);
 }
 
 export function stopPolling() {

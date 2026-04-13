@@ -5,6 +5,7 @@ import { Slider } from './components/Slider.js';
 import { TableSorter } from './components/TableSorter.js';
 import { Timer } from './components/Timer.js';
 import { Voting } from './components/Voting.js';
+import { SearchManager } from './components/SearchManager.js';
 
 import { API_CONFIG } from './api/config.js';
 import { safeGetMatches, getStandings } from './services/matchSyncService.js';
@@ -46,6 +47,8 @@ function initExistingComponents() {
 
   new TableSorter('#league-table').init();
 
+  new SearchManager();
+
   new HotelManager({
     hotelListSelector: '[data-hotel-list]',
     loadMoreButtonSelector: '[data-load-more-hotels]',
@@ -62,7 +65,7 @@ function initExistingComponents() {
 }
 
 function normalizeCompetitionButtons() {
-  const labels = ['Premier League', 'Champions League', 'Results'];
+  const labels = ['Premier League', 'Champions League', 'La Liga', 'Bundesliga', 'Serie A', 'Results'];
 
   document.querySelectorAll('.competition-switcher__button').forEach((button, index) => {
     button.textContent = labels[index] ?? button.textContent;
@@ -82,33 +85,47 @@ async function loadMatchesSection() {
 
   showLoadingState(container);
 
-  const competition = container.dataset.competition ?? API_CONFIG.COMPETITIONS.PL;
-  const status = container.dataset.status ?? 'SCHEDULED';
+  // Загружаем матчи из ВСЕХ лиг одновременно для большего объема данных
+  const competitions = ['PL', 'CL', 'PD', 'BL1', 'SA'];
+  const status = 'SCHEDULED';
 
-  const onUpdate = (freshData) => {
-    renderMatches(container, freshData, false);
-    showInAppNotification(
-      'Matches Updated',
-      `Fresh ${competition} fixtures are now available.`,
-      'info'
+  try {
+    const matchPromises = competitions.map(comp => 
+      safeGetMatches(comp, status, null)
     );
-  };
 
-  const { data, error, fromCache } = await safeGetMatches(competition, status, onUpdate);
+    const results = await Promise.allSettled(matchPromises);
+    let allMatches = [];
+    let hadError = false;
 
-  if (error) {
-    showErrorBanner(error, fromCache);
-  }
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled' && result.value.data) {
+        allMatches = allMatches.concat(result.value.data);
+      } else if (result.status === 'rejected' || result.value.error) {
+        hadError = true;
+      }
+    });
 
-  if (data) {
-    renderMatches(container, data, fromCache);
-    if (fromCache) {
+    // Сортируем по дате
+    allMatches.sort((a, b) => {
+      const dateA = a.utcDate ? new Date(a.utcDate).getTime() : 0;
+      const dateB = b.utcDate ? new Date(b.utcDate).getTime() : 0;
+      return dateA - dateB;
+    });
+
+    if (allMatches.length > 0) {
+      renderMatches(container, allMatches, false);
       showInAppNotification(
-        'Cached Data',
-        'The API is temporarily unavailable, so saved data is being shown.',
-        'warning'
+        'All Matches Loaded',
+        `Loaded ${allMatches.length} matches from all competitions`,
+        'success'
       );
+    } else if (hadError) {
+      showErrorBanner('Unable to load some competitions', false);
     }
+  } catch (error) {
+    console.error('[App] Error loading matches:', error);
+    showErrorBanner('Failed to load matches', false);
   }
 }
 
@@ -185,6 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[SportArena] Initializing...');
 
   initExistingComponents();
+  initFeaturesInfo();
   normalizeCompetitionButtons();
   initOfflineDetection();
   initCacheControls();
@@ -198,3 +216,91 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   console.log('[SportArena] Initialization finished.');
 });
+
+/**
+ * Global function to switch competitions
+ * Called from inline onclick handlers in HTML
+ */
+window.switchCompetition = async (competition, status) => {
+  const container = document.querySelector('[data-matches-list]');
+  if (!container) return;
+
+  showLoadingState(container);
+
+  try {
+    const targetStatus = status || 'SCHEDULED';
+    
+    // Если нужны результаты - загружаем финальные матчи из всех лиг
+    if (status === 'FINISHED' || !competition) {
+      const competitions = ['PL', 'CL', 'PD', 'BL1', 'SA'];
+      const matchPromises = competitions.map(comp => 
+        safeGetMatches(comp, 'FINISHED', null)
+      );
+
+      const results = await Promise.allSettled(matchPromises);
+      let allMatches = [];
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value.data) {
+          allMatches = allMatches.concat(result.value.data);
+        }
+      });
+
+      // Сортируем по дате (новые сверху)
+      allMatches.sort((a, b) => {
+        const dateA = a.utcDate ? new Date(a.utcDate).getTime() : 0;
+        const dateB = b.utcDate ? new Date(b.utcDate).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      renderMatches(container, allMatches, false);
+      showInAppNotification('Results Loaded', `Showing ${allMatches.length} finished matches`, 'info');
+    } else {
+      // Загружаем матчи из конкретной лиги
+      const { data } = await safeGetMatches(competition, targetStatus, null);
+      if (data && data.length > 0) {
+        renderMatches(container, data, false);
+        showInAppNotification('Competition Switched', `Showing ${targetStatus} matches`, 'info');
+      } else {
+        showErrorBanner('No matches found for this competition', false);
+      }
+    }
+  } catch (error) {
+    console.error('[App] Error switching competition:', error);
+    showErrorBanner('Failed to load competition', false);
+  }
+};
+
+/**
+ * Demonstrate notifications - for testing
+ */
+window.showTestNotification = (title = 'Test Notification', message = 'This is a test message') => {
+  showInAppNotification(title, message, 'success');
+};
+
+/**
+ * Show polling status
+ */
+window.showPollingStatus = () => {
+  showInAppNotification(
+    'Polling Active',
+    'Real-time match updates are enabled. You will see notifications when matches change.',
+    'info'
+  );
+};
+
+/**
+ * Initialize features info panel
+ */
+function initFeaturesInfo() {
+  const toggleBtn = document.getElementById('toggle-features');
+  const featureDetails = document.getElementById('features-details');
+
+  if (toggleBtn && featureDetails) {
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = featureDetails.style.display === 'none';
+      featureDetails.style.display = isHidden ? 'block' : 'none';
+      toggleBtn.textContent = isHidden ? 'Hide Details' : 'Show Details';
+    });
+  }
+}

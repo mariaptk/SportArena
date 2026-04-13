@@ -5,7 +5,8 @@ const { URL } = require('url');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const FOOTBALL_API_BASE = 'https://api.football-data.org/v4';
-const FOOTBALL_API_KEY = process.env.FOOTBALL_DATA_API_KEY || process.env.FOOTBALL_DATA_KEY;
+// Используем встроенный API ключ, если переменная окружения не установлена
+const FOOTBALL_API_KEY = process.env.FOOTBALL_DATA_API_KEY || process.env.FOOTBALL_DATA_KEY || '2653331a276f4ce3bc6592eaa77d2a5b';
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,9 +21,9 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname)));
 
 app.use('/api', async (req, res) => {
-    if (!FOOTBALL_API_KEY || FOOTBALL_API_KEY === '<YOUR_FOOTBALL_DATA_API_KEY>') {
+    if (!FOOTBALL_API_KEY) {
         return res.status(500).json({
-            error: 'Football-Data.org API key is not configured. Set FOOTBALL_DATA_API_KEY in the environment.'
+            error: 'Football-Data.org API key is not configured.'
         });
     }
 
@@ -56,9 +57,15 @@ app.use('/api', async (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+    res.json({ 
+        status: 'ok',
+        apiConfigured: !!FOOTBALL_API_KEY,
+        port: PORT
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`SportArena proxy server is running at http://localhost:${PORT}`);
+    console.log(`✅ SportArena proxy server is running at http://localhost:${PORT}`);
+    console.log(`📡 API Proxy: ${FOOTBALL_API_BASE}`);
+    console.log(`🔑 API Key configured: ${FOOTBALL_API_KEY ? '✓' : '✗'}`);
 });

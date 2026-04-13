@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Source+Code+Pro:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/search-panel.css">
 </head>
 <body itemscope itemtype="https://schema.org/WebPage">
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -42,6 +43,41 @@
             <h1 class="hero__title">WELCOME TO SPORTARENA</h1>
         </section>
 
+        <!-- INFO SECTION: Features and Capabilities -->
+        <div id="features-info" style="
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+          border-left: 4px solid rgba(59, 130, 246, 0.5);
+          padding: 16px;
+          margin: 16px 0;
+          border-radius: 8px;
+          font-family: 'Source Code Pro', monospace;
+          font-size: 13px;
+          color: rgba(248, 250, 252, 0.8);
+        ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <strong style="font-size: 15px; color: rgba(147, 197, 253, 0.9);">📊 Real-time Features Active</strong>
+            <button id="toggle-features" style="
+              background: rgba(59, 130, 246, 0.2);
+              border: 1px solid rgba(59, 130, 246, 0.4);
+              padding: 4px 10px;
+              border-radius: 4px;
+              cursor: pointer;
+              color: rgba(147, 197, 253, 0.9);
+              font-size: 12px;
+              font-family: 'Source Code Pro', monospace;
+            ">Show Details</button>
+          </div>
+
+          <div id="features-details" style="display: none; line-height: 1.6;">
+            <p style="margin: 4px 0;"><strong>✓ Live Match Polling:</strong> Automatically checks for match updates every 90 seconds</p>
+            <p style="margin: 4px 0;"><strong>✓ Match Notifications:</strong> Displays alerts when scores change or matches finish</p>
+            <p style="margin: 4px 0;"><strong>✓ Advanced Search:</strong> Filter matches by city, team, or status below</p>
+            <p style="margin: 4px 0;"><strong>✓ Data Display Panel:</strong> View filtered results in real-time cards</p>
+            <p style="margin: 4px 0;"><strong>✓ API Integration:</strong> Connected to football-data.org and TheSportsDB</p>
+            <p style="margin: 4px 0; color: rgba(134, 239, 172, 0.9);"><strong>→ Check browser console (F12) for detailed logs</strong></p>
+          </div>
+        </div>
+
         <div class="layout-container">
 
             <section class="events-list" id="events">
@@ -53,15 +89,73 @@
                     <button
                         class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition('PL','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+                        style="font-size:13px;padding:8px 14px;">Premier League</button>
                     <button
                         class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition('CL','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">🏆 Champions League</button>
+                        style="font-size:13px;padding:8px 14px;">Champions League</button>
+                    <button
+                        class="hotel-card__button competition-switcher__button"
+                        onclick="window.switchCompetition('PD','SCHEDULED')"
+                        style="font-size:13px;padding:8px 14px;">La Liga</button>
+                    <button
+                        class="hotel-card__button competition-switcher__button"
+                        onclick="window.switchCompetition('BL1','SCHEDULED')"
+                        style="font-size:13px;padding:8px 14px;">Bundesliga</button>
+                    <button
+                        class="hotel-card__button competition-switcher__button"
+                        onclick="window.switchCompetition('SA','SCHEDULED')"
+                        style="font-size:13px;padding:8px 14px;">Serie A</button>
                     <button
                         class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition(null,'FINISHED')"
-                        style="font-size:13px;padding:8px 14px;">✅ Results</button>
+                        style="font-size:13px;padding:8px 14px;">Results</button>
+                </div>
+
+                <!-- ПОИСК И ФИЛЬТРАЦИЯ: форма для ввода данных -->
+                <div class="search-panel" aria-label="Match Search and Filter">
+                    <div class="search-panel__form-group">
+                        <label for="search-league" class="search-panel__label">Search by League</label>
+                        <input 
+                            type="text" 
+                            id="search-league" 
+                            class="search-panel__input" 
+                            placeholder="Premier, Champions, La Liga, Bundesliga..."
+                            aria-label="Search by league name"
+                        >
+                    </div>
+
+                    <div class="search-panel__form-group">
+                        <label for="search-team" class="search-panel__label">Search by Team</label>
+                        <input 
+                            type="text" 
+                            id="search-team" 
+                            class="search-panel__input" 
+                            placeholder="Real Madrid, Liverpool, Bayern..."
+                            aria-label="Search by team name"
+                        >
+                    </div>
+
+                    <div class="search-panel__form-group">
+                        <label for="filter-status" class="search-panel__label">Match Status</label>
+                        <select id="filter-status" class="search-panel__select" aria-label="Filter by match status">
+                            <option value="">All Statuses</option>
+                            <option value="SCHEDULED">Scheduled</option>
+                            <option value="LIVE">Live</option>
+                            <option value="FINISHED">Finished</option>
+                        </select>
+                    </div>
+
+                    <button id="apply-filters" class="search-panel__button" type="button">Apply Filters</button>
+                    <button id="clear-filters" class="search-panel__button search-panel__button--secondary" type="button">Clear</button>
+                </div>
+
+                <!-- РЕЗУЛЬТАТЫ ПОИСКА: панель для отображения данных -->
+                <div id="search-results" class="search-results" aria-live="polite" aria-label="Search Results">
+                    <div class="search-results__info" style="display:none;">
+                        <p id="results-count" class="search-results__count">Found <span>0</span> matches</p>
+                        <div id="results-container" class="search-results__container"></div>
+                    </div>
                 </div>
 
                 <!-- ИЗМЕНЕНИЕ 2: обёртка data-matches-list вокруг статических карточек (НОВОЕ)
