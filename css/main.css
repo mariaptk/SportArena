@@ -54,6 +54,15 @@
     flex: 1;
 }
 
+.matches-section {
+    padding: 28px;
+    border-radius: 28px;
+    background:
+        linear-gradient(rgba(5, 10, 24, 0.78), rgba(5, 10, 24, 0.9)),
+        url('../images/champ2.webp') center/cover no-repeat;
+    overflow: hidden;
+}
+
 .sidebar {
     width: 300px;
     flex-shrink: 0;
@@ -390,7 +399,7 @@
     background-position: center center;
     background-attachment: fixed;
     padding: 40px 20px;
-    margin: 0;
+    margin-top: 56px;
     position: relative;
     border-radius: 24px;
     overflow: hidden;
