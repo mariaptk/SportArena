@@ -27,13 +27,13 @@ export function cacheSet(key, data, ttl) {
       schemaVersion: SCHEMA_VERSION,
       lastSyncAt:    now(),
       expiresAt:     now() + ttl,
-      fingerprint:   JSON.stringify(data).length,  // простой fingerprint
+      fingerprint:   JSON.stringify(data).length,  
       data,
     };
     localStorage.setItem(makeKey(key), JSON.stringify(record));
     console.log(`[Cache] ✓ Сохранено: ${key} (TTL ${Math.round(ttl/1000)}s)`);
   } catch (err) {
-    // Квота localStorage заполнена — очищаем протухшее и пробуем снова
+    
     console.warn('[Cache] localStorage полон, очищаем протухшие записи...');
     clearExpired();
     try {

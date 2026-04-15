@@ -214,10 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initNotifications();
 });
 
-/**
- * Global function to switch competitions
- * Called from inline onclick handlers in HTML
- */
+
 window.switchCompetition = async (competition, status) => {
   const container = document.querySelector('[data-matches-list]');
   if (!container) return;
@@ -259,9 +256,7 @@ window.switchCompetition = async (competition, status) => {
 };
 
 
-/**
- * Initialize features info panel
- */
+
 function initFeaturesInfo() {
   const toggleBtn = document.getElementById('toggle-features');
   const featureDetails = document.getElementById('features-details');

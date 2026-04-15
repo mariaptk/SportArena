@@ -72,7 +72,7 @@ export async function staleWhileRevalidate(cacheKey, fetcher, ttl, onUpdate) {
     return cached.data;
   }
 
-  // Кэша нет — ждём API
+  
   console.log(`[Sync] Нет кэша: ${cacheKey} — загружаем из API...`);
   return await fetchAndCache(cacheKey, fetcher, ttl);
 }
@@ -134,7 +134,7 @@ export async function safeGetMatches(competition, status) {
     const data = normalizeMatchesForRequestedStatus(await getMatches(competition, status), status);
     return { data, error: null, fromCache: false };
   } catch (err) {
-    // Пробуем достать протухший кэш
+    
     const cached = cacheGet(matchesCacheKey(competition, status));
     if (cached) {
       console.warn('[Sync] API недоступен, используется старый кэш.');
