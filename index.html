@@ -50,56 +50,51 @@
                 <div class="matches-section">
                 <h2 class="events-list__title">Upcoming Matches</h2>
 
-                <!-- ИЗМЕНЕНИЕ 1: кнопки переключения лиги (НОВОЕ) -->
-                <div class="competition-switcher">
-                    <button
-                        class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition('PL','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">Premier League</button>
-                    <button
-                        class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition('CL','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">Champions League</button>
-                    <button
-                        class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition('BL1','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">Bundesliga</button>
-                    <button
-                        class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition('SA','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">Serie A</button>
-                    <button
-                        class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition(null,'FINISHED')"
-                        style="font-size:13px;padding:8px 14px;">Results</button>
-                </div>
-
-                <!-- ПОИСК И ФИЛЬТРАЦИЯ: форма для ввода данных -->
                 <div class="search-panel" aria-label="Match Search and Filter">
+ 
+                    <!-- 1. Поиск по команде -->
                     <div class="search-panel__form-group">
                         <label for="search-query" class="search-panel__label">Search Matches</label>
-                        <input 
-                            type="text" 
-                            id="search-query" 
-                            class="search-panel__input" 
-                            placeholder="Search by league, team, or date (e.g., Premier, Real Madrid, 2026-05-28)"
-                            aria-label="Search matches by league, team, or date"
+                        <input
+                            type="text"
+                            id="search-query"
+                            class="search-panel__input"
+                            placeholder="Enter team name (e.g. Arsenal, Bayern)"
+                            aria-label="Search by team name"
                         >
                     </div>
-
+                
+                    <!-- 2. НОВОЕ: фильтр по лиге -->
+                    <div class="search-panel__form-group">
+                        <label for="filter-league" class="search-panel__label">League</label>
+                        <select id="filter-league" class="search-panel__select" aria-label="Filter by league">
+                            <option value="">All Leagues</option>
+                            <option value="PL">Premier League</option>
+                            <option value="CL">Champions League</option>
+                            <option value="PD">La Liga</option>
+                            <option value="BL1">Bundesliga</option>
+                            <option value="SA">Serie A</option>
+                        </select>
+                    </div>
+                
+                    <!-- 3. Фильтр по статусу (как был) -->
                     <div class="search-panel__form-group">
                         <label for="filter-status" class="search-panel__label">Match Status</label>
                         <select id="filter-status" class="search-panel__select" aria-label="Filter by match status">
                             <option value="">All Statuses</option>
-                            <option value="SCHEDULED">Scheduled</option>
-                            <option value="LIVE">Live</option>
-                            <option value="FINISHED">Finished</option>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Live">Live</option>
+                            <option value="Finished">Finished</option>
                         </select>
                     </div>
-
+                
+                    <!-- 4. Кнопка -->
                     <div class="search-panel__buttons">
-                        <button id="apply-filters" class="search-panel__button search-panel__button--small" type="button">Apply Filters</button>
+                        <button id="apply-filters" class="search-panel__button search-panel__button--small" type="button">
+                            Apply Filters
+                        </button>
                     </div>
+                
                 </div>
 
                 <!-- РЕЗУЛЬТАТЫ ПОИСКА: панель для отображения данных -->

@@ -1,19 +1,23 @@
 /**
- * SearchManager - handles search and filtering of matches by league, team, and status
+ * SearchManager — поиск и фильтрация матчей
+ * Поля: team name, league (dropdown), match status (dropdown), Apply Filters
  */
 
+import { safeGetMatches } from '../services/matchSyncService.js';
+import { renderMatches, showLoadingState } from '../utils/uiRenderer.js';
+
 export class SearchManager {
-  constructor(config = {}) {
-    this.searchQueryInput = document.getElementById('search-query');
+  constructor() {
+    this.searchQueryInput  = document.getElementById('search-query');
+    this.filterLeagueSelect = document.getElementById('filter-league');
     this.filterStatusSelect = document.getElementById('filter-status');
-    this.applyFiltersBtn = document.getElementById('apply-filters');
-    this.searchResultsContainer = document.getElementById('search-results');
-    this.resultsInfoDiv = document.querySelector('.search-results__info');
-    this.resultsCountSpan = document.querySelector('#results-count span');
-    this.resultsContainer = document.getElementById('results-container');
+    this.applyFiltersBtn   = document.getElementById('apply-filters');
+    this.resultsInfoDiv    = document.querySelector('.search-results__info');
+    this.resultsCountSpan  = document.querySelector('#results-count span');
+    this.resultsContainer  = document.getElementById('results-container');
     this.matchesListContainer = document.querySelector('[data-matches-list]');
 
-    this.allMatches = [];
+    this.allMatches     = [];
     this.filteredMatches = [];
 
     this.init();
@@ -21,195 +25,191 @@ export class SearchManager {
 
   init() {
     if (!this.searchQueryInput || !this.applyFiltersBtn) {
-      console.error('[SearchManager] ✗ Search elements not found in DOM!');
-      console.error('[SearchManager] searchQueryInput:', this.searchQueryInput);
-      console.error('[SearchManager] applyFiltersBtn:', this.applyFiltersBtn);
+      console.error('[SearchManager] Required elements not found.');
       return;
     }
 
-    console.log('[SearchManager] ✅ All elements found in DOM');
-    console.log('[SearchManager] resultsInfoDiv:', this.resultsInfoDiv);
-    console.log('[SearchManager] resultsContainer:', this.resultsContainer);
-    console.log('[SearchManager] matchesListContainer:', this.matchesListContainer);
-
-    this.attachEventListeners();
-    console.log('[SearchManager] ✅ Initialized with universal search');
-  }
-
-  attachEventListeners() {
     this.applyFiltersBtn.addEventListener('click', () => this.performSearch());
-    
-    // Allow Enter key to trigger search
-    [this.searchQueryInput, this.filterStatusSelect].forEach((input) => {
-      if (input) {
-        input.addEventListener('keypress', (e) => {
+
+    [this.searchQueryInput, this.filterLeagueSelect, this.filterStatusSelect].forEach((el) => {
+      if (el) {
+        el.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') this.performSearch();
         });
       }
     });
+
+    console.log('[SearchManager] Initialized.');
   }
 
-  /**
-   * Extract matches from the DOM or from cache
-   */
+  // ─── Собрать матчи из DOM ────────────────────────────────────────────────────
+
   extractMatchesFromDOM() {
-    if (!this.matchesListContainer) {
-      console.error('[SearchManager] Matches list container not found!');
-      return [];
-    }
+    if (!this.matchesListContainer) return [];
 
+    const rows    = this.matchesListContainer.querySelectorAll('.match-row');
     const matches = [];
-    const matchButtons = this.matchesListContainer.querySelectorAll('.match-row');
 
-    console.log(`[SearchManager] Found ${matchButtons.length} match rows in DOM`);
-
-    matchButtons.forEach((button, index) => {
-      const payload = button.getAttribute('data-match-payload');
-      if (payload) {
-        try {
-          const data = JSON.parse(decodeURIComponent(payload));
-          matches.push(data);
-          console.log(`[SearchManager] Parsed match ${index + 1}:`, data.homeTeam, 'vs', data.awayTeam);
-        } catch (e) {
-          console.warn('[SearchManager] Failed to parse match payload:', e);
-        }
+    rows.forEach((row) => {
+      const payload = row.getAttribute('data-match-payload');
+      if (!payload) return;
+      try {
+        const data = JSON.parse(decodeURIComponent(payload));
+        // Также сохраним utcDate и status из data-атрибутов строки, если есть
+        matches.push(data);
+      } catch (e) {
+        console.warn('[SearchManager] Failed to parse match payload:', e);
       }
     });
 
-    console.log(`[SearchManager] ✅ Extracted ${matches.length} matches`);
+    console.log(`[SearchManager] Extracted ${matches.length} matches from DOM`);
     return matches;
   }
 
-  /**
-   * Normalize search strings for comparison
-   */
-  normalizeString(str) {
-    return String(str || '').toLowerCase().trim();
+  // ─── Фильтрация ─────────────────────────────────────────────────────────────
+
+  normalize(str) {
+    return String(str ?? '').toLowerCase().trim();
   }
 
-  /**
-   * Check if a match matches all filters
-   */
   matchesFilter(match, filters) {
-    const { query, status } = filters;
+    const { query, league, status } = filters;
 
-    // Filter by query (league, team, or date)
+    // 1. Фильтр по команде / тексту
     if (query) {
-      const normalizedQuery = this.normalizeString(query);
-      const competition = this.normalizeString(match.competition || '');
-      const homeTeam = this.normalizeString(match.homeTeam || '');
-      const awayTeam = this.normalizeString(match.awayTeam || '');
+      const q    = this.normalize(query);
+      const home = this.normalize(match.homeTeam);
+      const away = this.normalize(match.awayTeam);
+      const comp = this.normalize(match.competition);
       const date = match.utcDate ? match.utcDate.split('T')[0] : '';
-      if (!competition.includes(normalizedQuery) && !homeTeam.includes(normalizedQuery) && !awayTeam.includes(normalizedQuery) && !date.includes(normalizedQuery)) {
-        console.log(`[Filter] ✗ Query: "${query}" not found in competition, teams, or date`);
+
+      if (!home.includes(q) && !away.includes(q) && !comp.includes(q) && !date.includes(q)) {
         return false;
       }
-      console.log(`[Filter] ✓ Query: "${query}" found`);
     }
 
-    // Filter by status
-    if (status && match.statusLabel) {
-      const normalizedStatus = this.normalizeString(status);
-      const matchStatus = this.normalizeString(match.statusLabel);
-      if (!matchStatus.includes(normalizedStatus)) {
-        console.log(`[Filter] ✗ Status: "${status}" not in "${match.statusLabel}"`);
-        return false;
-      }
-      console.log(`[Filter] ✓ Status: "${status}" matches`);
+    // 2. Фильтр по лиге (dropdown)
+    if (league) {
+      const comp = this.normalize(match.competition);
+      const leagueMap = {
+        PL:  'premier',
+        CL:  'champions',
+        PD:  'liga',
+        BL1: 'bundesliga',
+        SA:  'serie',
+      };
+      const keyword = leagueMap[league] ?? this.normalize(league);
+      if (!comp.includes(keyword)) return false;
+    }
+
+    // 3. Фильтр по статусу
+    if (status) {
+      const matchStatus = this.normalize(match.statusLabel ?? match.status ?? '');
+      const filterStatus = this.normalize(status);
+      if (!matchStatus.includes(filterStatus)) return false;
     }
 
     return true;
   }
 
-  /**
-   * Perform the search with current filter values
-   */
-  performSearch() {
-    const query = this.searchQueryInput.value.trim();
-    const status = this.filterStatusSelect.value.trim();
+  // ─── Выполнить поиск ─────────────────────────────────────────────────────────
 
-    console.log('[SearchManager] performSearch called with:', { query, status });
+  async performSearch() {
+    const query  = this.searchQueryInput?.value.trim() ?? '';
+    const league = this.filterLeagueSelect?.value.trim() ?? '';
+    const status = this.filterStatusSelect?.value.trim() ?? '';
 
-    // If no filters applied, show main list
-    if (!query && !status) {
-      // Show main matches list
-      if (this.matchesListContainer) {
-        this.matchesListContainer.style.display = '';
-      }
-      if (this.resultsInfoDiv) {
-        this.resultsInfoDiv.style.display = 'none';
-      }
-      console.log('[SearchManager] No filters - showing main matches list');
+    console.log('[SearchManager] Search:', { query, league, status });
+
+    // Нет фильтров → вернуть основной список
+    if (!query && !league && !status) {
+      this.hideResults();
       return;
     }
 
-    // Extract all available matches
+    // Если выбрана лига, но матчи этой лиги ещё не загружены —
+    // загрузим их из API и добавим в DOM
+    if (league) {
+      await this.ensureLeagueLoaded(league);
+    }
+
     this.allMatches = this.extractMatchesFromDOM();
 
     if (this.allMatches.length === 0) {
-      this.showNoMatches('No matches available in the system.');
+      this.showNoMatches('No matches available. Try loading a competition first.');
       return;
     }
 
-    // Apply filters
-    const filters = { query, status };
-    console.log(`[SearchManager] Filtering ${this.allMatches.length} matches...`);
-    
-    this.filteredMatches = this.allMatches.filter((match) => {
-      const result = this.matchesFilter(match, filters);
-      if (result) {
-        console.log(`[SearchManager] ✓ Match passed filter: ${match.homeTeam} vs ${match.awayTeam}`);
-      }
-      return result;
-    });
+    const filters = { query, league, status };
+    this.filteredMatches = this.allMatches.filter((m) => this.matchesFilter(m, filters));
 
-    console.log(`[SearchManager] Filter result: ${this.filteredMatches.length} matches found`);
+    console.log(`[SearchManager] Found ${this.filteredMatches.length} results`);
 
     if (this.filteredMatches.length === 0) {
-      this.showNoMatches('No matches found matching your filters. Try different search terms.');
-      return;
+      this.showNoMatches('No matches found. Try different search terms.');
+    } else {
+      this.displayResults();
     }
-
-    this.displayResults();
   }
 
-  /**
-   * Display search results
-   */
-  displayResults() {
-    if (!this.resultsInfoDiv || !this.resultsContainer) {
-      console.error('[SearchManager] Results container not found!');
-      return;
-    }
+  // ─── Загрузить лигу если её ещё нет в DOM ────────────────────────────────────
 
-    // Скрыть основной список матчей
-    if (this.matchesListContainer) {
-      this.matchesListContainer.style.display = 'none';
+  async ensureLeagueLoaded(leagueCode) {
+    if (!this.matchesListContainer) return;
+
+    // Проверяем, есть ли уже матчи этой лиги
+    const existing = this.extractMatchesFromDOM();
+    const leagueMap = {
+      PL:  'premier',
+      CL:  'champions',
+      PD:  'liga',
+      BL1: 'bundesliga',
+      SA:  'serie',
+    };
+    const keyword = leagueMap[leagueCode] ?? leagueCode.toLowerCase();
+    const hasLeague = existing.some((m) => this.normalize(m.competition).includes(keyword));
+
+    if (hasLeague) return; // уже есть
+
+    // Загружаем
+    console.log(`[SearchManager] Loading league ${leagueCode} from API...`);
+    showLoadingState(this.matchesListContainer);
+    const { data } = await safeGetMatches(leagueCode, 'SCHEDULED');
+    if (data?.length) {
+      renderMatches(this.matchesListContainer, data, false);
     }
+  }
+
+  // ─── Показать результаты ─────────────────────────────────────────────────────
+
+  displayResults() {
+    if (!this.resultsInfoDiv || !this.resultsContainer) return;
+
+    // Скрываем основной список
+    if (this.matchesListContainer) this.matchesListContainer.style.display = 'none';
 
     this.resultsInfoDiv.style.display = 'block';
-    this.resultsCountSpan.textContent = this.filteredMatches.length;
+    if (this.resultsCountSpan) this.resultsCountSpan.textContent = this.filteredMatches.length;
     this.resultsContainer.innerHTML = '';
 
-    console.log(`[SearchManager] Creating ${this.filteredMatches.length} result cards...`);
-
-    this.filteredMatches.forEach((match, index) => {
-      const card = this.createResultCard(match);
-      this.resultsContainer.appendChild(card);
-      console.log(`[SearchManager] Card ${index + 1} added to DOM`);
+    this.filteredMatches.forEach((match) => {
+      this.resultsContainer.appendChild(this.createResultCard(match));
     });
-
-    console.log(`[SearchManager] ✅ Displayed ${this.filteredMatches.length} results`);
   }
 
-  /**
-   * Create a result card element
-   */
+  // ─── Скрыть результаты и вернуть основной список ─────────────────────────────
+
+  hideResults() {
+    if (this.matchesListContainer) this.matchesListContainer.style.display = '';
+    if (this.resultsInfoDiv) this.resultsInfoDiv.style.display = 'none';
+  }
+
+  // ─── Карточка результата ──────────────────────────────────────────────────────
+
   createResultCard(match) {
     const card = document.createElement('div');
     card.className = 'search-result-card';
 
-    // Вычисляем score
     let scoreDisplay = 'vs';
     if (match.homeScore != null && match.awayScore != null) {
       scoreDisplay = `${match.homeScore} : ${match.awayScore}`;
@@ -217,91 +217,67 @@ export class SearchManager {
       scoreDisplay = match.score;
     }
 
-    // Вычисляем дату
     let dateDisplay = 'TBD';
     if (match.dateLabel) {
       dateDisplay = match.dateLabel;
     } else if (match.utcDate) {
       try {
-        const date = new Date(match.utcDate);
-        dateDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } catch (e) {
+        const d = new Date(match.utcDate);
+        dateDisplay = d.toLocaleDateString('en-GB') + ' ' +
+          d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      } catch {
         dateDisplay = match.utcDate;
       }
     }
 
-    const statusClass = `search-result-card__status--${(match.statusLabel || match.status || 'unknown').toLowerCase()}`;
-
-    const html = `
+    card.innerHTML = `
       <div class="search-result-card__header">
-        <h4 class="search-result-card__title">${this.escapeHtml(match.competition)}</h4>
-        <span class="search-result-card__status ${statusClass}">
-          ${this.escapeHtml(match.statusLabel || match.status || 'TBD')}
+        <h4 class="search-result-card__title">${this.esc(match.competition)}</h4>
+        <span class="search-result-card__status">
+          ${this.esc(match.statusLabel ?? match.status ?? 'TBD')}
         </span>
       </div>
-
       <div class="search-result-card__info">
         <div class="search-result-card__teams">
           <div class="search-result-card__team">
-            ${match.homeCrest ? `<img src="${this.escapeHtml(match.homeCrest)}" alt="crest" class="search-result-card__team-crest" onerror="this.style.display='none'">` : ''}
-            <span>${this.escapeHtml(match.homeTeam)}</span>
+            ${match.homeCrest ? `<img src="${this.esc(match.homeCrest)}" alt="crest" class="search-result-card__team-crest" onerror="this.style.display='none'">` : ''}
+            <span>${this.esc(match.homeTeam)}</span>
           </div>
           <span class="search-result-card__vs">VS</span>
           <div class="search-result-card__team">
-            ${match.awayCrest ? `<img src="${this.escapeHtml(match.awayCrest)}" alt="crest" class="search-result-card__team-crest" onerror="this.style.display='none'">` : ''}
-            <span>${this.escapeHtml(match.awayTeam)}</span>
+            ${match.awayCrest ? `<img src="${this.esc(match.awayCrest)}" alt="crest" class="search-result-card__team-crest" onerror="this.style.display='none'">` : ''}
+            <span>${this.esc(match.awayTeam)}</span>
           </div>
         </div>
-
-        <div class="search-result-card__score">
-          ${this.escapeHtml(scoreDisplay)}
-        </div>
-
+        <div class="search-result-card__score">${this.esc(scoreDisplay)}</div>
         <div class="search-result-card__detail">
           <span class="search-result-card__label">Date:</span>
-          <span class="search-result-card__value">${this.escapeHtml(dateDisplay)}</span>
+          <span class="search-result-card__value">${this.esc(dateDisplay)}</span>
         </div>
-
         ${match.stage ? `
           <div class="search-result-card__detail">
             <span class="search-result-card__label">Stage:</span>
-            <span class="search-result-card__value">${this.escapeHtml(match.stage)}</span>
-          </div>
-        ` : ''}
+            <span class="search-result-card__value">${this.esc(match.stage)}</span>
+          </div>` : ''}
       </div>
     `;
-
-    card.innerHTML = html;
-    console.log('[SearchManager] Created card for:', match.homeTeam, 'vs', match.awayTeam);
     return card;
   }
 
-  /**
-   * Show "no matches" message
-   */
   showNoMatches(message) {
     if (!this.resultsInfoDiv || !this.resultsContainer) return;
-
-    // Скрыть основной список матчей
-    if (this.matchesListContainer) {
-      this.matchesListContainer.style.display = 'none';
-    }
+    if (this.matchesListContainer) this.matchesListContainer.style.display = 'none';
 
     this.resultsInfoDiv.style.display = 'block';
     this.resultsContainer.innerHTML = `
       <div class="search-no-results">
         <div class="search-no-results__icon">🔍</div>
-        <p class="search-no-results__text">${this.escapeHtml(message)}</p>
+        <p class="search-no-results__text">${this.esc(message)}</p>
       </div>
     `;
   }
 
-
-
-  /**
-   * Escape HTML special characters
-   */
-  escapeHtml(value) {
+  esc(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
