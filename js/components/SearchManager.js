@@ -4,11 +4,9 @@
 
 export class SearchManager {
   constructor(config = {}) {
-    this.searchLeagueInput = document.getElementById('search-league');
-    this.searchTeamInput = document.getElementById('search-team');
+    this.searchQueryInput = document.getElementById('search-query');
     this.filterStatusSelect = document.getElementById('filter-status');
     this.applyFiltersBtn = document.getElementById('apply-filters');
-    this.clearFiltersBtn = document.getElementById('clear-filters');
     this.searchResultsContainer = document.getElementById('search-results');
     this.resultsInfoDiv = document.querySelector('.search-results__info');
     this.resultsCountSpan = document.querySelector('#results-count span');
@@ -22,9 +20,9 @@ export class SearchManager {
   }
 
   init() {
-    if (!this.searchLeagueInput || !this.applyFiltersBtn) {
+    if (!this.searchQueryInput || !this.applyFiltersBtn) {
       console.error('[SearchManager] ✗ Search elements not found in DOM!');
-      console.error('[SearchManager] searchLeagueInput:', this.searchLeagueInput);
+      console.error('[SearchManager] searchQueryInput:', this.searchQueryInput);
       console.error('[SearchManager] applyFiltersBtn:', this.applyFiltersBtn);
       return;
     }
@@ -35,15 +33,14 @@ export class SearchManager {
     console.log('[SearchManager] matchesListContainer:', this.matchesListContainer);
 
     this.attachEventListeners();
-    console.log('[SearchManager] ✅ Initialized with league search');
+    console.log('[SearchManager] ✅ Initialized with universal search');
   }
 
   attachEventListeners() {
     this.applyFiltersBtn.addEventListener('click', () => this.performSearch());
-    this.clearFiltersBtn.addEventListener('click', () => this.clearSearch());
     
     // Allow Enter key to trigger search
-    [this.searchLeagueInput, this.searchTeamInput, this.filterStatusSelect].forEach((input) => {
+    [this.searchQueryInput, this.filterStatusSelect].forEach((input) => {
       if (input) {
         input.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') this.performSearch();
@@ -94,29 +91,20 @@ export class SearchManager {
    * Check if a match matches all filters
    */
   matchesFilter(match, filters) {
-    const { league, team, status } = filters;
+    const { query, status } = filters;
 
-    // Filter by league
-    if (league) {
-      const normalizedLeague = this.normalizeString(league);
+    // Filter by query (league, team, or date)
+    if (query) {
+      const normalizedQuery = this.normalizeString(query);
       const competition = this.normalizeString(match.competition || '');
-      if (!competition.includes(normalizedLeague)) {
-        console.log(`[Filter] ✗ League: "${league}" not in "${match.competition}"`);
-        return false;
-      }
-      console.log(`[Filter] ✓ League: "${league}" found in "${match.competition}"`);
-    }
-
-    // Filter by team
-    if (team) {
-      const normalizedTeam = this.normalizeString(team);
       const homeTeam = this.normalizeString(match.homeTeam || '');
       const awayTeam = this.normalizeString(match.awayTeam || '');
-      if (!homeTeam.includes(normalizedTeam) && !awayTeam.includes(normalizedTeam)) {
-        console.log(`[Filter] ✗ Team: "${team}" not in "${match.homeTeam}" or "${match.awayTeam}"`);
+      const date = match.utcDate ? match.utcDate.split('T')[0] : '';
+      if (!competition.includes(normalizedQuery) && !homeTeam.includes(normalizedQuery) && !awayTeam.includes(normalizedQuery) && !date.includes(normalizedQuery)) {
+        console.log(`[Filter] ✗ Query: "${query}" not found in competition, teams, or date`);
         return false;
       }
-      console.log(`[Filter] ✓ Team: "${team}" found`);
+      console.log(`[Filter] ✓ Query: "${query}" found`);
     }
 
     // Filter by status
@@ -137,14 +125,13 @@ export class SearchManager {
    * Perform the search with current filter values
    */
   performSearch() {
-    const league = this.searchLeagueInput.value.trim();
-    const team = this.searchTeamInput.value.trim();
+    const query = this.searchQueryInput.value.trim();
     const status = this.filterStatusSelect.value.trim();
 
-    console.log('[SearchManager] performSearch called with:', { league, team, status });
+    console.log('[SearchManager] performSearch called with:', { query, status });
 
     // If no filters applied, show main list
-    if (!league && !team && !status) {
+    if (!query && !status) {
       // Show main matches list
       if (this.matchesListContainer) {
         this.matchesListContainer.style.display = '';
@@ -165,7 +152,7 @@ export class SearchManager {
     }
 
     // Apply filters
-    const filters = { league, team, status };
+    const filters = { query, status };
     console.log(`[SearchManager] Filtering ${this.allMatches.length} matches...`);
     
     this.filteredMatches = this.allMatches.filter((match) => {
@@ -309,26 +296,7 @@ export class SearchManager {
     `;
   }
 
-  /**
-   * Clear all search filters and results
-   */
-  clearSearch() {
-    this.searchLeagueInput.value = '';
-    this.searchTeamInput.value = '';
-    this.filterStatusSelect.value = '';
-    this.filteredMatches = [];
 
-    if (this.resultsInfoDiv) {
-      this.resultsInfoDiv.style.display = 'none';
-    }
-
-    // Показать основной список матчей обратно
-    if (this.matchesListContainer) {
-      this.matchesListContainer.style.display = '';
-    }
-
-    console.log('[SearchManager] All filters cleared - showing main list');
-  }
 
   /**
    * Escape HTML special characters

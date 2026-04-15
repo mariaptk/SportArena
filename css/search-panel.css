@@ -84,6 +84,19 @@
   color: rgba(248, 250, 252, 0.9);
 }
 
+.search-panel__buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-panel__button--small {
+  padding: 8px 16px;
+  font-size: 11px;
+  min-width: auto;
+}
+
 /* Search Results Panel */
 .search-results {
   margin: 20px 0;

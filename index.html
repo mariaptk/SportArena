@@ -43,40 +43,6 @@
             <h1 class="hero__title">WELCOME TO SPORTARENA</h1>
         </section>
 
-        <!-- INFO SECTION: Features and Capabilities -->
-        <div id="features-info" style="
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
-          border-left: 4px solid rgba(59, 130, 246, 0.5);
-          padding: 16px;
-          margin: 16px 0;
-          border-radius: 8px;
-          font-family: 'Source Code Pro', monospace;
-          font-size: 13px;
-          color: rgba(248, 250, 252, 0.8);
-        ">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <strong style="font-size: 15px; color: rgba(147, 197, 253, 0.9);">📊 Real-time Features Active</strong>
-            <button id="toggle-features" style="
-              background: rgba(59, 130, 246, 0.2);
-              border: 1px solid rgba(59, 130, 246, 0.4);
-              padding: 4px 10px;
-              border-radius: 4px;
-              cursor: pointer;
-              color: rgba(147, 197, 253, 0.9);
-              font-size: 12px;
-              font-family: 'Source Code Pro', monospace;
-            ">Show Details</button>
-          </div>
-
-          <div id="features-details" style="display: none; line-height: 1.6;">
-            <p style="margin: 4px 0;"><strong>✓ Live Match Polling:</strong> Automatically checks for match updates every 90 seconds</p>
-            <p style="margin: 4px 0;"><strong>✓ Match Notifications:</strong> Displays alerts when scores change or matches finish</p>
-            <p style="margin: 4px 0;"><strong>✓ Advanced Search:</strong> Filter matches by city, team, or status below</p>
-            <p style="margin: 4px 0;"><strong>✓ Data Display Panel:</strong> View filtered results in real-time cards</p>
-            <p style="margin: 4px 0;"><strong>✓ API Integration:</strong> Connected to football-data.org and TheSportsDB</p>
-            <p style="margin: 4px 0; color: rgba(134, 239, 172, 0.9);"><strong>→ Check browser console (F12) for detailed logs</strong></p>
-          </div>
-        </div>
 
         <div class="layout-container">
 
@@ -96,10 +62,6 @@
                         style="font-size:13px;padding:8px 14px;">Champions League</button>
                     <button
                         class="hotel-card__button competition-switcher__button"
-                        onclick="window.switchCompetition('PD','SCHEDULED')"
-                        style="font-size:13px;padding:8px 14px;">La Liga</button>
-                    <button
-                        class="hotel-card__button competition-switcher__button"
                         onclick="window.switchCompetition('BL1','SCHEDULED')"
                         style="font-size:13px;padding:8px 14px;">Bundesliga</button>
                     <button
@@ -115,24 +77,13 @@
                 <!-- ПОИСК И ФИЛЬТРАЦИЯ: форма для ввода данных -->
                 <div class="search-panel" aria-label="Match Search and Filter">
                     <div class="search-panel__form-group">
-                        <label for="search-league" class="search-panel__label">Search by League</label>
+                        <label for="search-query" class="search-panel__label">Search Matches</label>
                         <input 
                             type="text" 
-                            id="search-league" 
+                            id="search-query" 
                             class="search-panel__input" 
-                            placeholder="Premier, Champions, La Liga, Bundesliga..."
-                            aria-label="Search by league name"
-                        >
-                    </div>
-
-                    <div class="search-panel__form-group">
-                        <label for="search-team" class="search-panel__label">Search by Team</label>
-                        <input 
-                            type="text" 
-                            id="search-team" 
-                            class="search-panel__input" 
-                            placeholder="Real Madrid, Liverpool, Bayern..."
-                            aria-label="Search by team name"
+                            placeholder="Search by league, team, or date (e.g., Premier, Real Madrid, 2026-05-28)"
+                            aria-label="Search matches by league, team, or date"
                         >
                     </div>
 
@@ -146,8 +97,9 @@
                         </select>
                     </div>
 
-                    <button id="apply-filters" class="search-panel__button" type="button">Apply Filters</button>
-                    <button id="clear-filters" class="search-panel__button search-panel__button--secondary" type="button">Clear</button>
+                    <div class="search-panel__buttons">
+                        <button id="apply-filters" class="search-panel__button search-panel__button--small" type="button">Apply Filters</button>
+                    </div>
                 </div>
 
                 <!-- РЕЗУЛЬТАТЫ ПОИСКА: панель для отображения данных -->
