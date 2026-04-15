@@ -1,8 +1,3 @@
-/**
- * SearchManager — поиск и фильтрация матчей
- * Поля: team name, league (dropdown), match status (dropdown), Apply Filters
- */
-
 import { safeGetMatches } from '../services/matchSyncService.js';
 import { renderMatches, showLoadingState } from '../utils/uiRenderer.js';
 
@@ -38,35 +33,26 @@ export class SearchManager {
         });
       }
     });
-
-    console.log('[SearchManager] Initialized.');
   }
-
-  // ─── Собрать матчи из DOM ────────────────────────────────────────────────────
 
   extractMatchesFromDOM() {
     if (!this.matchesListContainer) return [];
 
-    const rows    = this.matchesListContainer.querySelectorAll('.match-row');
+    const rows = this.matchesListContainer.querySelectorAll('.match-row');
     const matches = [];
 
     rows.forEach((row) => {
       const payload = row.getAttribute('data-match-payload');
       if (!payload) return;
       try {
-        const data = JSON.parse(decodeURIComponent(payload));
-        // Также сохраним utcDate и status из data-атрибутов строки, если есть
-        matches.push(data);
+        matches.push(JSON.parse(decodeURIComponent(payload)));
       } catch (e) {
         console.warn('[SearchManager] Failed to parse match payload:', e);
       }
     });
 
-    console.log(`[SearchManager] Extracted ${matches.length} matches from DOM`);
     return matches;
   }
-
-  // ─── Фильтрация ─────────────────────────────────────────────────────────────
 
   normalize(str) {
     return String(str ?? '').toLowerCase().trim();
@@ -75,9 +61,8 @@ export class SearchManager {
   matchesFilter(match, filters) {
     const { query, league, status } = filters;
 
-    // 1. Фильтр по команде / тексту
     if (query) {
-      const q    = this.normalize(query);
+      const q = this.normalize(query);
       const home = this.normalize(match.homeTeam);
       const away = this.normalize(match.awayTeam);
       const comp = this.normalize(match.competition);
@@ -88,21 +73,19 @@ export class SearchManager {
       }
     }
 
-    // 2. Фильтр по лиге (dropdown)
     if (league) {
       const comp = this.normalize(match.competition);
       const leagueMap = {
-        PL:  'premier',
-        CL:  'champions',
-        PD:  'liga',
+        PL: 'premier',
+        CL: 'champions',
+        PD: 'liga',
         BL1: 'bundesliga',
-        SA:  'serie',
+        SA: 'serie',
       };
       const keyword = leagueMap[league] ?? this.normalize(league);
       if (!comp.includes(keyword)) return false;
     }
 
-    // 3. Фильтр по статусу
     if (status) {
       const matchStatus = this.normalize(match.statusLabel ?? match.status ?? '');
       const filterStatus = this.normalize(status);
@@ -112,22 +95,16 @@ export class SearchManager {
     return true;
   }
 
-  // ─── Выполнить поиск ─────────────────────────────────────────────────────────
-
   async performSearch() {
-    const query  = this.searchQueryInput?.value.trim() ?? '';
+    const query = this.searchQueryInput?.value.trim() ?? '';
     const league = this.filterLeagueSelect?.value.trim() ?? '';
     const status = this.filterStatusSelect?.value.trim() ?? '';
 
-    console.log('[SearchManager] Search:', { query, league, status });
-
-    // Нет фильтров → вернуть основной список
     if (!query && !league && !status) {
       this.hideResults();
       return;
     }
 
-    // Если выбрана лига, загрузим именно нужный статус или все доступные статусы
     if (league) {
       await this.ensureLeagueLoaded(league, status);
     }
@@ -142,8 +119,6 @@ export class SearchManager {
     const filters = { query, league, status };
     this.filteredMatches = this.allMatches.filter((m) => this.matchesFilter(m, filters));
 
-    console.log(`[SearchManager] Found ${this.filteredMatches.length} results`);
-
     if (this.filteredMatches.length === 0) {
       this.showNoMatches('No matches found. Try different search terms.');
     } else {
@@ -151,53 +126,38 @@ export class SearchManager {
     }
   }
 
-  // ─── Загрузить лигу если её ещё нет в DOM ────────────────────────────────────
-
   async ensureLeagueLoaded(leagueCode, status = '') {
     if (!this.matchesListContainer) return;
 
-    // Проверяем, есть ли уже матчи этой лиги
     const existing = this.extractMatchesFromDOM();
     const leagueMap = {
-      PL:  'premier',
-      CL:  'champions',
-      PD:  'liga',
+      PL: 'premier',
+      CL: 'champions',
+      PD: 'liga',
       BL1: 'bundesliga',
-      SA:  'serie',
+      SA: 'serie',
     };
     const keyword = leagueMap[leagueCode] ?? leagueCode.toLowerCase();
     const hasLeague = existing.some((m) => this.normalize(m.competition).includes(keyword));
 
-    if (hasLeague) return; // уже есть
+    if (hasLeague) return;
 
-    // Загружаем нужные статусы для выбранной лиги
     const statuses = status ? [status] : ['LIVE', 'FINISHED', 'SCHEDULED'];
-    console.log(`[SearchManager] Loading league ${leagueCode} statuses: ${statuses.join(', ')} from API...`);
-
     showLoadingState(this.matchesListContainer);
 
-    const results = await Promise.allSettled(
-      statuses.map((st) => safeGetMatches(leagueCode, st))
-    );
-
-    const matches = [];
-    results.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value.data) {
-        matches.push(...result.value.data);
-      }
-    });
+    const results = await Promise.allSettled(statuses.map((st) => safeGetMatches(leagueCode, st)));
+    const matches = results
+      .filter((result) => result.status === 'fulfilled' && result.value.data)
+      .flatMap((result) => result.value.data);
 
     if (matches.length) {
       renderMatches(this.matchesListContainer, matches, false);
     }
   }
 
-  // ─── Показать результаты ─────────────────────────────────────────────────────
-
   displayResults() {
     if (!this.resultsInfoDiv || !this.resultsContainer) return;
 
-    // Скрываем основной список
     if (this.matchesListContainer) this.matchesListContainer.style.display = 'none';
 
     this.resultsInfoDiv.style.display = 'block';
@@ -209,14 +169,10 @@ export class SearchManager {
     });
   }
 
-  // ─── Скрыть результаты и вернуть основной список ─────────────────────────────
-
   hideResults() {
     if (this.matchesListContainer) this.matchesListContainer.style.display = '';
     if (this.resultsInfoDiv) this.resultsInfoDiv.style.display = 'none';
   }
-
-  // ─── Карточка результата ──────────────────────────────────────────────────────
 
   createResultCard(match) {
     const card = document.createElement('div');
@@ -283,7 +239,6 @@ export class SearchManager {
     this.resultsInfoDiv.style.display = 'block';
     this.resultsContainer.innerHTML = `
       <div class="search-no-results">
-        <div class="search-no-results__icon">🔍</div>
         <p class="search-no-results__text">${this.esc(message)}</p>
       </div>
     `;

@@ -85,7 +85,6 @@ async function loadMatchesSection() {
 
   showLoadingState(container);
 
-  // Загружаем матчи из всех статусов и лиг, если они доступны
   const competitions = ['PL', 'CL', 'PD', 'BL1', 'SA'];
   const statuses = ['LIVE', 'FINISHED', 'SCHEDULED'];
 
@@ -98,7 +97,7 @@ async function loadMatchesSection() {
     const matchMap = new Map();
     let hadError = false;
 
-    results.forEach((result, index) => {
+    results.forEach((result) => {
       if (result.status === 'fulfilled' && result.value.data) {
         result.value.data.forEach((match) => {
           const key = match.id ?? `${match.homeTeam}-${match.awayTeam}-${match.utcDate}`;
@@ -106,14 +105,13 @@ async function loadMatchesSection() {
             matchMap.set(key, match);
           }
         });
-      } else if (result.status === 'rejected' || result.value.error) {
+      } else {
         hadError = true;
       }
     });
 
     const allMatches = Array.from(matchMap.values());
 
-    // Сортируем по дате
     allMatches.sort((a, b) => {
       const dateA = a.utcDate ? new Date(a.utcDate).getTime() : 0;
       const dateB = b.utcDate ? new Date(b.utcDate).getTime() : 0;
@@ -122,13 +120,9 @@ async function loadMatchesSection() {
 
     if (allMatches.length > 0) {
       renderMatches(container, allMatches, false);
-      showInAppNotification(
-        'All Matches Loaded',
-        `Loaded ${allMatches.length} matches from all competitions and statuses`,
-        'success'
-      );
+      showInAppNotification('All Matches Loaded', `Loaded ${allMatches.length} matches`, 'success');
     } else if (hadError) {
-      showErrorBanner('Unable to load some competitions or statuses', false);
+      showErrorBanner('Unable to load matches', false);
     }
   } catch (error) {
     console.error('[App] Error loading matches:', error);
@@ -206,8 +200,6 @@ function initOfflineDetection() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[SportArena] Initializing...');
-
   initExistingComponents();
   initFeaturesInfo();
   normalizeCompetitionButtons();
@@ -220,8 +212,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   ]);
 
   initNotifications();
-
-  console.log('[SportArena] Initialization finished.');
 });
 
 /**
@@ -236,24 +226,15 @@ window.switchCompetition = async (competition, status) => {
 
   try {
     const targetStatus = status || 'SCHEDULED';
-    
-    // Если нужны результаты - загружаем финальные матчи из всех лиг
+
     if (status === 'FINISHED' || !competition) {
       const competitions = ['PL', 'CL', 'PD', 'BL1', 'SA'];
-      const matchPromises = competitions.map(comp => 
-        safeGetMatches(comp, 'FINISHED', null)
-      );
-
+      const matchPromises = competitions.map((comp) => safeGetMatches(comp, 'FINISHED', null));
       const results = await Promise.allSettled(matchPromises);
-      let allMatches = [];
+      const allMatches = results
+        .filter((result) => result.status === 'fulfilled' && result.value.data)
+        .flatMap((result) => result.value.data);
 
-      results.forEach((result) => {
-        if (result.status === 'fulfilled' && result.value.data) {
-          allMatches = allMatches.concat(result.value.data);
-        }
-      });
-
-      // Сортируем по дате (новые сверху)
       allMatches.sort((a, b) => {
         const dateA = a.utcDate ? new Date(a.utcDate).getTime() : 0;
         const dateB = b.utcDate ? new Date(b.utcDate).getTime() : 0;
@@ -263,9 +244,8 @@ window.switchCompetition = async (competition, status) => {
       renderMatches(container, allMatches, false);
       showInAppNotification('Results Loaded', `Showing ${allMatches.length} finished matches`, 'info');
     } else {
-      // Загружаем матчи из конкретной лиги
       const { data } = await safeGetMatches(competition, targetStatus, null);
-      if (data && data.length > 0) {
+      if (data?.length) {
         renderMatches(container, data, false);
         showInAppNotification('Competition Switched', `Showing ${targetStatus} matches`, 'info');
       } else {
@@ -278,23 +258,6 @@ window.switchCompetition = async (competition, status) => {
   }
 };
 
-/**
- * Demonstrate notifications - for testing
- */
-window.showTestNotification = (title = 'Test Notification', message = 'This is a test message') => {
-  showInAppNotification(title, message, 'success');
-};
-
-/**
- * Show polling status
- */
-window.showPollingStatus = () => {
-  showInAppNotification(
-    'Polling Active',
-    'Real-time match updates are enabled. You will see notifications when matches change.',
-    'info'
-  );
-};
 
 /**
  * Initialize features info panel
