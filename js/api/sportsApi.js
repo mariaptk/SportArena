@@ -1,7 +1,3 @@
-/**
- * Browser-safe sports API layer.
- * Uses TheSportsDB for schedules, results and standings to avoid frontend CORS issues.
- */
 
 import { API_CONFIG } from './config.js';
 import { apiFetch } from './apiService.js';
@@ -60,8 +56,13 @@ function sortMatchesByDate(matches, direction = 'asc') {
   return direction === 'desc' ? sorted.reverse() : sorted;
 }
 
-function normalizeSportsDbMatch(event, fallbackCompetition = '', forcedStatus = '') {
-  const status = forcedStatus || mapSportsDbStatus(event.strStatus);
+function getMatchTimestamp(match) {
+  if (!match?.utcDate) return NaN;
+  return new Date(match.utcDate).getTime();
+}
+
+function normalizeSportsDbMatch(event, fallbackCompetition = '') {
+  const status = mapSportsDbStatus(event.strStatus);
 
   return {
     id: event.idEvent,
@@ -102,18 +103,40 @@ function normalizeSportsDbStanding(row) {
   };
 }
 
-async function fetchLeagueEvents(competitionCode, endpoint, forcedStatus = '') {
+function matchesRequestedStatus(matchStatus, requestedStatus = '') {
+  if (!requestedStatus) return true;
+  if (requestedStatus === 'LIVE') return matchStatus === 'LIVE' || matchStatus === 'IN_PLAY';
+  if (requestedStatus === 'IN_PLAY') return matchStatus === 'IN_PLAY' || matchStatus === 'LIVE';
+  return matchStatus === requestedStatus;
+}
+
+function matchesRequestedTime(match, requestedStatus = '', now = Date.now()) {
+  if (requestedStatus !== 'SCHEDULED' && requestedStatus !== 'FINISHED') return true;
+
+  const timestamp = getMatchTimestamp(match);
+  if (Number.isNaN(timestamp)) return matchesRequestedStatus(match.status, requestedStatus);
+
+  if (requestedStatus === 'SCHEDULED') return timestamp > now;
+  return timestamp <= now;
+}
+
+function alignMatchStatus(match, requestedStatus = '') {
+  if (requestedStatus !== 'SCHEDULED' && requestedStatus !== 'FINISHED') return match;
+  return { ...match, status: requestedStatus };
+}
+
+async function fetchLeagueEvents(competitionCode, endpoint) {
   const competition = getSportsDbCompetition(competitionCode);
   const url = `${API_CONFIG.SPORTSDB_BASE}/${endpoint}?id=${competition.id}`;
   const data = await apiFetch(url);
-  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name, forcedStatus));
+  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name));
 }
 
-async function fetchLeagueEventsByDay(competitionCode, date, forcedStatus = '') {
+async function fetchLeagueEventsByDay(competitionCode, date) {
   const competition = getSportsDbCompetition(competitionCode);
   const url = `${API_CONFIG.SPORTSDB_BASE}/eventsday.php?d=${date}&s=Soccer&l=${encodeURIComponent(competition.name)}`;
   const data = await apiFetch(url);
-  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name, forcedStatus));
+  return (data.events ?? []).map((event) => normalizeSportsDbMatch(event, competition.name));
 }
 
 async function fetchLeagueEventsWindow(
@@ -122,22 +145,24 @@ async function fetchLeagueEventsWindow(
     direction = 'forward',
     minMatches = MATCHES_TARGET_COUNT,
     maxDays = MATCH_SEARCH_WINDOW_DAYS,
-    forcedStatus = '',
+    requestedStatus = '',
     startDate = getTodayIsoDate(),
   } = {}
 ) {
   const seenIds = new Set();
   const collected = [];
+  const now = Date.now();
 
   for (let step = 0; step < maxDays && collected.length < minMatches; step += 1) {
     const offset = direction === 'backward' ? -step : step;
     const date = shiftIsoDate(startDate, offset);
-    const dayMatches = await fetchLeagueEventsByDay(competitionCode, date, forcedStatus);
+    const dayMatches = await fetchLeagueEventsByDay(competitionCode, date);
 
     for (const match of dayMatches) {
+      if (!matchesRequestedTime(match, requestedStatus, now)) continue;
       if (seenIds.has(match.id)) continue;
       seenIds.add(match.id);
-      collected.push(match);
+      collected.push(alignMatchStatus(match, requestedStatus));
     }
   }
 
@@ -150,16 +175,16 @@ export async function fetchMatches(competitionCode, status) {
   if (status === 'FINISHED') {
     matches = await fetchLeagueEventsWindow(competitionCode, {
       direction: 'backward',
-      forcedStatus: 'FINISHED',
+      requestedStatus: 'FINISHED',
     });
   } else if (status === 'LIVE' || status === 'IN_PLAY') {
     const today = getTodayIsoDate();
     matches = await fetchLeagueEventsByDay(competitionCode, today);
-    matches = matches.filter((match) => match.status === 'LIVE' || match.status === 'IN_PLAY');
+    matches = matches.filter((match) => matchesRequestedStatus(match.status, status));
   } else {
     matches = await fetchLeagueEventsWindow(competitionCode, {
       direction: 'forward',
-      forcedStatus: 'SCHEDULED',
+      requestedStatus: 'SCHEDULED',
     });
   }
 
@@ -205,7 +230,7 @@ export async function fetchSportsDBEvents(leagueName) {
     {
       direction: 'forward',
       minMatches: 3,
-      forcedStatus: 'SCHEDULED',
+      requestedStatus: 'SCHEDULED',
     }
   );
   console.log(`[sportsApi] TheSportsDB: ${events.length} events`);
@@ -223,7 +248,7 @@ export async function fetchRecentResults() {
   const results = await fetchLeagueEventsWindow('PL', {
     direction: 'backward',
     minMatches: 6,
-    forcedStatus: 'FINISHED',
+    requestedStatus: 'FINISHED',
   });
 
   return results.map((match) => ({

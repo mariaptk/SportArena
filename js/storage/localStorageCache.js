@@ -1,15 +1,10 @@
-/**
- * localStorage.js — кэш-сервис на основе localStorage
- * Стратегия: stale-while-revalidate
- * Поддержка: TTL, schemaVersion, fingerprint, clearExpired, clearAll
- */
 
 import { API_CONFIG } from '../api/config.js';
 
 const SCHEMA_VERSION = API_CONFIG.CACHE_SCHEMA_VERSION;
 const PREFIX = 'sportarena:';
 
-// ─── Приватные утилиты ────────────────────────────────────────────────────────
+
 
 function makeKey(key) {
   return `${PREFIX}${key}`;
@@ -19,13 +14,12 @@ function now() {
   return Date.now();
 }
 
-// ─── Публичный API ────────────────────────────────────────────────────────────
+
 
 /**
- * Сохранить данные с TTL
- * @param {string} key    напр. 'matches:PL:SCHEDULED'
+ * @param {string} key    
  * @param {any}    data
- * @param {number} ttl    миллисекунды
+ * @param {number} ttl    
  */
 export function cacheSet(key, data, ttl) {
   try {
@@ -51,7 +45,6 @@ export function cacheSet(key, data, ttl) {
 }
 
 /**
- * Получить данные из кэша
  * @param {string} key
  * @returns {{ data: any, isStale: boolean, lastSyncAt: number } | null}
  */
@@ -62,7 +55,7 @@ export function cacheGet(key) {
 
     const record = JSON.parse(raw);
 
-    // Несовместимая схема — инвалидируем
+    
     if (record.schemaVersion !== SCHEMA_VERSION) {
       localStorage.removeItem(makeKey(key));
       return null;
@@ -83,17 +76,13 @@ export function cacheGet(key) {
   }
 }
 
-/**
- * Удалить конкретный ключ
- */
+
 export function cacheDelete(key) {
   localStorage.removeItem(makeKey(key));
   console.log(`[Cache] Удалено: ${key}`);
 }
 
-/**
- * Удалить все протухшие ключи SportArena
- */
+
 export function clearExpired() {
   let count = 0;
   for (const storageKey of Object.keys(localStorage)) {
@@ -113,9 +102,7 @@ export function clearExpired() {
   return count;
 }
 
-/**
- * Очистить весь кэш SportArena
- */
+
 export function clearAllCache() {
   let count = 0;
   for (const storageKey of Object.keys(localStorage)) {
@@ -128,9 +115,7 @@ export function clearAllCache() {
   return count;
 }
 
-/**
- * Список всех кэшированных ключей с мета-информацией
- */
+
 export function getCacheStats() {
   const stats = [];
   for (const storageKey of Object.keys(localStorage)) {

@@ -1,8 +1,3 @@
-/**
- * SportArena API configuration.
- * The app now prefers TheSportsDB for browser-safe requests without CORS issues.
- * football-data.org stays available as an optional proxy-backed fallback.
- */
 
 const isLocalDev =
   typeof window !== 'undefined' &&
@@ -59,6 +54,6 @@ export const API_CONFIG = {
   POLL_INTERVAL_ACTIVE: 90 * 1000,
   POLL_INTERVAL_HIDDEN: 300 * 1000,
 
-  CACHE_SCHEMA_VERSION: '1.0.3',
+  CACHE_SCHEMA_VERSION: '1.0.4',
   REQUEST_TIMEOUT_MS: 8000,
 };

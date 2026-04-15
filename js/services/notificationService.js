@@ -1,7 +1,7 @@
 import { API_CONFIG } from '../api/config.js';
 import { fetchMatches } from '../api/sportsApi.js';
-import { cacheGet, cacheSet } from '../storege/localStorageCache.js';
-import { isNotified, markNotified } from '../storege/sessionStorageCache.js';
+import { cacheGet, cacheSet } from '../storage/localStorageCache.js';
+import { isNotified, markNotified } from '../storage/sessionStorageCache.js';
 import { matchScoreKey } from '../utils/dataParser.js';
 
 const SNAPSHOT_KEY = 'notifications:snapshot';
@@ -185,15 +185,15 @@ export function startPolling(competition = 'PL', status = 'LIVE') {
 
   schedule();
   
-  // Show initial polling notification
+  
   showInAppNotification(
-    '🔔 Polling Started',
+    'Polling Started',
     `Watching ${currentCompetition} matches for updates every 90 seconds...`,
     'success'
   );
   
-  console.log(`[Notification] ✅ Polling started for ${competition} ${status}`);
-  console.log(`[Notification] 📡 Updates every ${API_CONFIG.POLL_INTERVAL_ACTIVE / 1000}s (active) / ${API_CONFIG.POLL_INTERVAL_HIDDEN / 1000}s (hidden)`);
+  console.log(`[Notification]  Polling started for ${competition} ${status}`);
+  console.log(`[Notification] Updates every ${API_CONFIG.POLL_INTERVAL_ACTIVE / 1000}s (active) / ${API_CONFIG.POLL_INTERVAL_HIDDEN / 1000}s (hidden)`);
 }
 
 export function stopPolling() {

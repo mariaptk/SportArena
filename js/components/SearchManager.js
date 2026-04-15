@@ -1,8 +1,22 @@
 import { safeGetMatches } from '../services/matchSyncService.js';
-import { renderMatches, showLoadingState } from '../utils/uiRenderer.js';
 
 export class SearchManager {
   constructor() {
+    this.competitionCodes = ['PL', 'CL', 'PD', 'BL1', 'SA'];
+    this.statusAliases = {
+      scheduled: 'SCHEDULED',
+      live: 'LIVE',
+      'in play': 'LIVE',
+      in_play: 'LIVE',
+      finished: 'FINISHED',
+      postponed: 'POSTPONED',
+      cancelled: 'CANCELLED',
+      suspended: 'SUSPENDED',
+      halftime: 'PAUSED',
+      paused: 'PAUSED',
+      timed: 'TIMED',
+    };
+
     this.searchQueryInput  = document.getElementById('search-query');
     this.filterLeagueSelect = document.getElementById('filter-league');
     this.filterStatusSelect = document.getElementById('filter-status');
@@ -58,6 +72,70 @@ export class SearchManager {
     return String(str ?? '').toLowerCase().trim();
   }
 
+  normalizeStatusCode(status) {
+    const normalized = this.normalize(status).replace(/\s+/g, ' ');
+    if (!normalized) return '';
+    return this.statusAliases[normalized] ?? normalized.toUpperCase();
+  }
+
+  getCompetitionCodes(leagueCode = '') {
+    return leagueCode ? [leagueCode] : this.competitionCodes;
+  }
+
+  getStatusCodes(status = '') {
+    const normalizedStatus = this.normalizeStatusCode(status);
+    return normalizedStatus ? [normalizedStatus] : ['LIVE', 'FINISHED', 'SCHEDULED'];
+  }
+
+  buildMatchKey(match) {
+    return match.id ?? `${match.homeTeam}-${match.awayTeam}-${match.utcDate}-${match.status}`;
+  }
+
+  mergeMatches(matches) {
+    const uniqueMatches = new Map();
+
+    matches.forEach((match) => {
+      uniqueMatches.set(this.buildMatchKey(match), match);
+    });
+
+    return Array.from(uniqueMatches.values()).sort((first, second) => {
+      const firstTime = first.utcDate ? new Date(first.utcDate).getTime() : 0;
+      const secondTime = second.utcDate ? new Date(second.utcDate).getTime() : 0;
+      return firstTime - secondTime;
+    });
+  }
+
+  async loadMatchesForSearch(league = '', status = '') {
+    const competitions = this.getCompetitionCodes(league);
+    const statuses = this.getStatusCodes(status);
+    const requests = competitions.flatMap((competitionCode) =>
+      statuses.map((statusCode) => safeGetMatches(competitionCode, statusCode))
+    );
+
+    const results = await Promise.allSettled(requests);
+    const fetchedMatches = results
+      .filter((result) => result.status === 'fulfilled' && Array.isArray(result.value.data))
+      .flatMap((result) => result.value.data);
+
+    if (fetchedMatches.length > 0) {
+      return this.mergeMatches(fetchedMatches);
+    }
+
+    return this.extractMatchesFromDOM();
+  }
+
+  matchesStatusFilter(match, status) {
+    const filterStatus = this.normalizeStatusCode(status);
+    if (!filterStatus) return true;
+
+    const matchStatus = this.normalizeStatusCode(match.status ?? match.statusLabel ?? '');
+    if (filterStatus === 'LIVE') {
+      return matchStatus === 'LIVE' || matchStatus === 'IN_PLAY';
+    }
+
+    return matchStatus === filterStatus;
+  }
+
   matchesFilter(match, filters) {
     const { query, league, status } = filters;
 
@@ -87,9 +165,7 @@ export class SearchManager {
     }
 
     if (status) {
-      const matchStatus = this.normalize(match.statusLabel ?? match.status ?? '');
-      const filterStatus = this.normalize(status);
-      if (!matchStatus.includes(filterStatus)) return false;
+      if (!this.matchesStatusFilter(match, status)) return false;
     }
 
     return true;
@@ -105,11 +181,7 @@ export class SearchManager {
       return;
     }
 
-    if (league) {
-      await this.ensureLeagueLoaded(league, status);
-    }
-
-    this.allMatches = this.extractMatchesFromDOM();
+    this.allMatches = await this.loadMatchesForSearch(league, status);
 
     if (this.allMatches.length === 0) {
       this.showNoMatches('No matches available. Try loading a competition first.');
@@ -123,35 +195,6 @@ export class SearchManager {
       this.showNoMatches('No matches found. Try different search terms.');
     } else {
       this.displayResults();
-    }
-  }
-
-  async ensureLeagueLoaded(leagueCode, status = '') {
-    if (!this.matchesListContainer) return;
-
-    const existing = this.extractMatchesFromDOM();
-    const leagueMap = {
-      PL: 'premier',
-      CL: 'champions',
-      PD: 'liga',
-      BL1: 'bundesliga',
-      SA: 'serie',
-    };
-    const keyword = leagueMap[leagueCode] ?? leagueCode.toLowerCase();
-    const hasLeague = existing.some((m) => this.normalize(m.competition).includes(keyword));
-
-    if (hasLeague) return;
-
-    const statuses = status ? [status] : ['LIVE', 'FINISHED', 'SCHEDULED'];
-    showLoadingState(this.matchesListContainer);
-
-    const results = await Promise.allSettled(statuses.map((st) => safeGetMatches(leagueCode, st)));
-    const matches = results
-      .filter((result) => result.status === 'fulfilled' && result.value.data)
-      .flatMap((result) => result.value.data);
-
-    if (matches.length) {
-      renderMatches(this.matchesListContainer, matches, false);
     }
   }
 
@@ -237,6 +280,7 @@ export class SearchManager {
     if (this.matchesListContainer) this.matchesListContainer.style.display = 'none';
 
     this.resultsInfoDiv.style.display = 'block';
+    if (this.resultsCountSpan) this.resultsCountSpan.textContent = '0';
     this.resultsContainer.innerHTML = `
       <div class="search-no-results">
         <p class="search-no-results__text">${this.esc(message)}</p>

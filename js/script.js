@@ -20,7 +20,7 @@ import {
   showLoadingState,
   showErrorBanner,
 } from './utils/uiRenderer.js';
-import { clearExpired, clearAllCache, getCacheStats } from './storege/localStorageCache.js';
+import { clearExpired, clearAllCache, getCacheStats } from './storage/localStorageCache.js';
 
 function initExistingComponents() {
   new Timer('[data-target-date]').init();

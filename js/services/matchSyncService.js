@@ -1,15 +1,10 @@
-/**
- * matchSyncService.js — сервис синхронизации матчей
- * Стратегия: stale-while-revalidate
- * Показываем кэш мгновенно → тихо обновляем из API → обновляем UI
- */
+
 
 import { API_CONFIG } from '../api/config.js';
 import { fetchMatches, fetchStandings, fetchRecentResults } from '../api/sportsApi.js';
-import { cacheGet, cacheSet } from '../storege/localStorageCache.js';
+import { cacheGet, cacheSet } from '../storage/localStorageCache.js';
 import { NetworkError, ApiError } from '../api/apiService.js';
 
-// ─── Ключи кэша ──────────────────────────────────────────────────────────────
 
 export function matchesCacheKey(competition, status) {
   return `matches:${competition}:${status ?? 'ALL'}`;
@@ -21,7 +16,27 @@ export function standingsCacheKey(competition) {
 
 export const RECENT_RESULTS_KEY = 'matches:recent:thesportsdb';
 
-// ─── TTL по статусу ──────────────────────────────────────────────────────────
+function normalizeMatchesForRequestedStatus(matches, status) {
+  if (!Array.isArray(matches)) return matches;
+  if (status !== 'SCHEDULED' && status !== 'FINISHED') return matches;
+
+  const now = Date.now();
+
+  return matches
+    .filter((match) => {
+      if (!match?.utcDate) return true;
+
+      const timestamp = new Date(match.utcDate).getTime();
+      if (Number.isNaN(timestamp)) return true;
+
+      return status === 'SCHEDULED' ? timestamp > now : timestamp <= now;
+    })
+    .map((match) => ({
+      ...match,
+      status,
+    }));
+}
+
 
 function getTtl(status) {
   if (status === 'LIVE' || status === 'IN_PLAY') return API_CONFIG.CACHE_TTL.LIVE;
@@ -30,16 +45,17 @@ function getTtl(status) {
   return API_CONFIG.CACHE_TTL.SCHEDULED;
 }
 
-// ─── Stale-While-Revalidate ───────────────────────────────────────────────────
+
 
 /**
- * Возвращает данные: сначала кэш (быстро), затем обновляет из API (тихо).
  * @param {string}   cacheKey
- * @param {Function} fetcher     async функция без аргументов
+ * @param {Function} fetcher     
  * @param {number}   ttl
- * @param {Function} onUpdate    вызывается с новыми данными после фонового обновления
- * @returns {Promise<any>}       кэшированные или свежие данные
+ * @param {Function} onUpdate    
+ * @returns {Promise<any>}       
  */
+
+
 export async function staleWhileRevalidate(cacheKey, fetcher, ttl, onUpdate) {
   const cached = cacheGet(cacheKey);
 
@@ -76,11 +92,7 @@ async function refreshInBackground(cacheKey, fetcher, ttl, onUpdate) {
   }
 }
 
-// ─── Публичные методы ─────────────────────────────────────────────────────────
 
-/**
- * Загрузить матчи (scheduled/finished/live) с кэшем
- */
 export async function getMatches(competition, status, onUpdate) {
   const key = matchesCacheKey(competition, status);
   const ttl = getTtl(status);
@@ -92,9 +104,7 @@ export async function getMatches(competition, status, onUpdate) {
   );
 }
 
-/**
- * Загрузить таблицу с кэшем
- */
+
 export async function getStandings(competition, onUpdate) {
   const key = standingsCacheKey(competition);
   return staleWhileRevalidate(
@@ -105,9 +115,6 @@ export async function getStandings(competition, onUpdate) {
   );
 }
 
-/**
- * Загрузить последние результаты из TheSportsDB
- */
 export async function getRecentResults(onUpdate) {
   return staleWhileRevalidate(
     RECENT_RESULTS_KEY,
@@ -117,22 +124,25 @@ export async function getRecentResults(onUpdate) {
   );
 }
 
-// ─── Обработка ошибок для UI ─────────────────────────────────────────────────
+
 
 /**
- * Безопасная загрузка — при ошибке возвращает кэш или null
  * @returns {{ data: any|null, error: string|null, fromCache: boolean }}
  */
 export async function safeGetMatches(competition, status) {
   try {
-    const data = await getMatches(competition, status);
+    const data = normalizeMatchesForRequestedStatus(await getMatches(competition, status), status);
     return { data, error: null, fromCache: false };
   } catch (err) {
     // Пробуем достать протухший кэш
     const cached = cacheGet(matchesCacheKey(competition, status));
     if (cached) {
       console.warn('[Sync] API недоступен, используется старый кэш.');
-      return { data: cached.data, error: err.message, fromCache: true };
+      return {
+        data: normalizeMatchesForRequestedStatus(cached.data, status),
+        error: err.message,
+        fromCache: true,
+      };
     }
     return { data: null, error: err.message, fromCache: false };
   }
