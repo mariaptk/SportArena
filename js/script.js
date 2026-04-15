@@ -85,26 +85,33 @@ async function loadMatchesSection() {
 
   showLoadingState(container);
 
-  // Загружаем матчи из ВСЕХ лиг одновременно для большего объема данных
+  // Загружаем матчи из всех статусов и лиг, если они доступны
   const competitions = ['PL', 'CL', 'PD', 'BL1', 'SA'];
-  const status = 'SCHEDULED';
+  const statuses = ['LIVE', 'FINISHED', 'SCHEDULED'];
 
   try {
-    const matchPromises = competitions.map(comp => 
-      safeGetMatches(comp, status, null)
+    const matchPromises = competitions.flatMap((comp) =>
+      statuses.map((status) => safeGetMatches(comp, status, null))
     );
 
     const results = await Promise.allSettled(matchPromises);
-    let allMatches = [];
+    const matchMap = new Map();
     let hadError = false;
 
     results.forEach((result, index) => {
       if (result.status === 'fulfilled' && result.value.data) {
-        allMatches = allMatches.concat(result.value.data);
+        result.value.data.forEach((match) => {
+          const key = match.id ?? `${match.homeTeam}-${match.awayTeam}-${match.utcDate}`;
+          if (!matchMap.has(key)) {
+            matchMap.set(key, match);
+          }
+        });
       } else if (result.status === 'rejected' || result.value.error) {
         hadError = true;
       }
     });
+
+    const allMatches = Array.from(matchMap.values());
 
     // Сортируем по дате
     allMatches.sort((a, b) => {
@@ -117,11 +124,11 @@ async function loadMatchesSection() {
       renderMatches(container, allMatches, false);
       showInAppNotification(
         'All Matches Loaded',
-        `Loaded ${allMatches.length} matches from all competitions`,
+        `Loaded ${allMatches.length} matches from all competitions and statuses`,
         'success'
       );
     } else if (hadError) {
-      showErrorBanner('Unable to load some competitions', false);
+      showErrorBanner('Unable to load some competitions or statuses', false);
     }
   } catch (error) {
     console.error('[App] Error loading matches:', error);

@@ -127,10 +127,9 @@ export class SearchManager {
       return;
     }
 
-    // Если выбрана лига, но матчи этой лиги ещё не загружены —
-    // загрузим их из API и добавим в DOM
+    // Если выбрана лига, загрузим именно нужный статус или все доступные статусы
     if (league) {
-      await this.ensureLeagueLoaded(league);
+      await this.ensureLeagueLoaded(league, status);
     }
 
     this.allMatches = this.extractMatchesFromDOM();
@@ -154,7 +153,7 @@ export class SearchManager {
 
   // ─── Загрузить лигу если её ещё нет в DOM ────────────────────────────────────
 
-  async ensureLeagueLoaded(leagueCode) {
+  async ensureLeagueLoaded(leagueCode, status = '') {
     if (!this.matchesListContainer) return;
 
     // Проверяем, есть ли уже матчи этой лиги
@@ -171,12 +170,25 @@ export class SearchManager {
 
     if (hasLeague) return; // уже есть
 
-    // Загружаем
-    console.log(`[SearchManager] Loading league ${leagueCode} from API...`);
+    // Загружаем нужные статусы для выбранной лиги
+    const statuses = status ? [status] : ['LIVE', 'FINISHED', 'SCHEDULED'];
+    console.log(`[SearchManager] Loading league ${leagueCode} statuses: ${statuses.join(', ')} from API...`);
+
     showLoadingState(this.matchesListContainer);
-    const { data } = await safeGetMatches(leagueCode, 'SCHEDULED');
-    if (data?.length) {
-      renderMatches(this.matchesListContainer, data, false);
+
+    const results = await Promise.allSettled(
+      statuses.map((st) => safeGetMatches(leagueCode, st))
+    );
+
+    const matches = [];
+    results.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value.data) {
+        matches.push(...result.value.data);
+      }
+    });
+
+    if (matches.length) {
+      renderMatches(this.matchesListContainer, matches, false);
     }
   }
 
